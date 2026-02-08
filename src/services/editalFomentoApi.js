@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const editalFomentoApi = axios.create({
-  baseURL: import.meta.env.VITE_EDITAIS_AGENT_API_URL,
+  baseURL: import.meta.env.VITE_API_BASE_URL,
 });
 
 editalFomentoApi.interceptors.response.use(
