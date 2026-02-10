@@ -2,12 +2,14 @@ import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft, ExternalLink, Calendar, DollarSign, MapPin, Building2, FileText, AlertTriangle, MessageCircle } from 'lucide-react';
 import { useDocumentTitle } from '../../hooks/useDocumentTitle';
-import { getEditalFomentoById } from '../../services/editalFomentoService';
+import { useAuth } from '../../hooks/useAuth';
+import { getEditalFomentoById, toggleFavoriteEditalFomento } from '../../services/editalFomentoService';
 import Badge from '../../components/ui/Badge';
 import Spinner from '../../components/ui/Spinner';
 import EmptyState from '../../components/ui/EmptyState';
 import Button from '../../components/ui/Button';
 import ChatDrawer from '../../components/ui/ChatDrawer';
+import FavoriteButton from '../../components/common/FavoriteButton';
 import DateDisplay from '../../components/common/DateDisplay';
 import CurrencyDisplay from '../../components/common/CurrencyDisplay';
 import { ROUTES } from '../../constants/routes';
@@ -21,6 +23,7 @@ const STATUS_MAP = {
 
 export default function EditalFomentoDetailPage() {
   const { id } = useParams();
+  const { isAuthenticated } = useAuth();
   const [edital, setEdital] = useState(null);
   const [loading, setLoading] = useState(true);
   const [chatOpen, setChatOpen] = useState(false);
@@ -63,12 +66,20 @@ export default function EditalFomentoDetailPage() {
               <span className="text-sm text-gray-500">{days} dias restantes</span>
             )}
           </div>
-          {edital.confiancaExtracao != null && (
-            <div className="flex items-center gap-1 text-xs text-gray-400" title="Confianca da extracao por IA">
-              <AlertTriangle className="h-3.5 w-3.5" />
-              {Math.round(edital.confiancaExtracao * 100)}% confianca
-            </div>
-          )}
+          <div className="flex items-center gap-3">
+            {edital.confiancaExtracao != null && (
+              <div className="flex items-center gap-1 text-xs text-gray-400" title="Confianca da extracao por IA">
+                <AlertTriangle className="h-3.5 w-3.5" />
+                {Math.round(edital.confiancaExtracao * 100)}% confianca
+              </div>
+            )}
+            {isAuthenticated && (
+              <FavoriteButton
+                isFavorited={edital.isFavorited}
+                onClick={() => toggleFavoriteEditalFomento(edital.id)}
+              />
+            )}
+          </div>
         </div>
 
         <h1 className="text-2xl md:text-3xl font-bold font-heading text-gray-900 mb-2">

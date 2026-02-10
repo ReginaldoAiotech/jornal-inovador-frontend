@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { FileText, Star, Plus, ScrollText } from 'lucide-react';
+import { FileText, Star, Plus, ScrollText, GraduationCap } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { useDocumentTitle } from '../../hooks/useDocumentTitle';
 import { getMyClassifieds } from '../../services/classifiedService';
-import { getFavorites } from '../../services/editalService';
+import { getFavoriteEditaisFomento } from '../../services/editalFomentoService';
 import Card from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
 import { ROUTES } from '../../constants/routes';
@@ -17,7 +17,7 @@ export default function DashboardPage() {
   useEffect(() => {
     Promise.allSettled([
       getMyClassifieds({ limit: 1 }),
-      getFavorites({ limit: 1 }),
+      getFavoriteEditaisFomento({ limit: 1 }),
     ]).then(([cls, fav]) => {
       setStats({
         classifieds: cls.status === 'fulfilled' ? (cls.value?.total || 0) : 0,
@@ -58,8 +58,11 @@ export default function DashboardPage() {
         <Link to={ROUTES.CREATE_CLASSIFIED}>
           <Button><Plus className="h-4 w-4" /> Criar Classificado</Button>
         </Link>
-        <Link to={ROUTES.EDITAIS}>
+        <Link to={ROUTES.EDITAIS_FOMENTO}>
           <Button variant="secondary"><ScrollText className="h-4 w-4" /> Ver Editais</Button>
+        </Link>
+        <Link to={ROUTES.COURSES}>
+          <Button variant="secondary"><GraduationCap className="h-4 w-4" /> Ver Cursos</Button>
         </Link>
       </div>
     </div>

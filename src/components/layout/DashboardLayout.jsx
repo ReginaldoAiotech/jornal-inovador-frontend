@@ -1,17 +1,36 @@
+import { useState, useEffect } from 'react';
 import { Outlet } from 'react-router-dom';
-import { LayoutDashboard, FileText, Star, UserCircle } from 'lucide-react';
+import { LayoutDashboard, FileText, Star, UserCircle, ScrollText, GraduationCap } from 'lucide-react';
 import Header from './Header';
 import Sidebar from './Sidebar';
 import { ROUTES } from '../../constants/routes';
-
-const sidebarItems = [
-  { label: 'Painel', path: ROUTES.DASHBOARD, icon: LayoutDashboard, end: true },
-  { label: 'Meus Classificados', path: ROUTES.MY_CLASSIFIEDS, icon: FileText },
-  { label: 'Editais Favoritos', path: ROUTES.FAVORITE_EDITAIS, icon: Star },
-  { label: 'Perfil', path: ROUTES.PROFILE, icon: UserCircle },
-];
+import { getMyClassifieds } from '../../services/classifiedService';
+import { getFavoriteEditaisFomento } from '../../services/editalFomentoService';
 
 export default function DashboardLayout() {
+  const [counts, setCounts] = useState({ classifieds: 0, favorites: 0 });
+
+  useEffect(() => {
+    Promise.allSettled([
+      getMyClassifieds({ limit: 1 }),
+      getFavoriteEditaisFomento({ limit: 1 }),
+    ]).then(([cls, fav]) => {
+      setCounts({
+        classifieds: cls.status === 'fulfilled' ? (cls.value?.total || 0) : 0,
+        favorites: fav.status === 'fulfilled' ? (fav.value?.total || 0) : 0,
+      });
+    });
+  }, []);
+
+  const sidebarItems = [
+    { label: 'Painel', path: ROUTES.DASHBOARD, icon: LayoutDashboard, end: true },
+    { label: 'Editais', path: ROUTES.EDITAIS_FOMENTO, icon: ScrollText },
+    { label: 'Cursos', path: ROUTES.COURSES, icon: GraduationCap },
+    { label: 'Meus Classificados', path: ROUTES.MY_CLASSIFIEDS, icon: FileText, badge: counts.classifieds },
+    { label: 'Editais Favoritos', path: ROUTES.FAVORITE_EDITAIS, icon: Star, badge: counts.favorites },
+    { label: 'Perfil', path: ROUTES.PROFILE, icon: UserCircle },
+  ];
+
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
       <Header />

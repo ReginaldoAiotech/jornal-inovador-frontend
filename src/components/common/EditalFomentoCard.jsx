@@ -1,8 +1,11 @@
 import { Link } from 'react-router-dom';
 import { Calendar, DollarSign, MapPin, Building2 } from 'lucide-react';
 import Badge from '../ui/Badge';
+import FavoriteButton from './FavoriteButton';
 import DateDisplay from './DateDisplay';
 import CurrencyDisplay from './CurrencyDisplay';
+import { useAuth } from '../../hooks/useAuth';
+import { toggleFavoriteEditalFomento } from '../../services/editalFomentoService';
 import { daysUntil, getEffectiveEditalStatus } from '../../utils/formatters';
 
 const STATUS_MAP = {
@@ -11,7 +14,8 @@ const STATUS_MAP = {
   CONTINUO: { label: 'Fluxo continuo', variant: 'info' },
 };
 
-export default function EditalFomentoCard({ edital }) {
+export default function EditalFomentoCard({ edital, onToggleFavorite }) {
+  const { isAuthenticated } = useAuth();
   const effectiveStatus = getEffectiveEditalStatus(edital);
   const days = daysUntil(edital.prazoSubmissaoFase1);
   const isClosingSoon = effectiveStatus === 'ABERTO' && days !== null && days > 0 && days <= 7;
@@ -23,10 +27,21 @@ export default function EditalFomentoCard({ edital }) {
       className="block bg-white rounded-xl shadow-sm border border-gray-100 p-5 hover:shadow-md transition-shadow"
     >
       <div className="flex items-start justify-between gap-3 mb-3">
-        {edital.fap && <Badge variant="accent">{edital.fap}</Badge>}
-        <Badge variant={isClosingSoon ? 'danger' : statusInfo.variant}>
-          {isClosingSoon ? `Encerra em ${days}d` : statusInfo.label}
-        </Badge>
+        <div className="flex items-center gap-2 flex-wrap">
+          {edital.fap && <Badge variant="accent">{edital.fap}</Badge>}
+          <Badge variant={isClosingSoon ? 'danger' : statusInfo.variant}>
+            {isClosingSoon ? `Encerra em ${days}d` : statusInfo.label}
+          </Badge>
+        </div>
+        {isAuthenticated && (
+          <FavoriteButton
+            isFavorited={edital.isFavorited}
+            onClick={async () => {
+              await toggleFavoriteEditalFomento(edital.id);
+              onToggleFavorite?.(edital.id);
+            }}
+          />
+        )}
       </div>
 
       <h3 className="font-heading font-semibold text-gray-900 mb-2 line-clamp-2">

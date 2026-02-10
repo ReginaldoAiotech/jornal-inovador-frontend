@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useDocumentTitle } from '../../hooks/useDocumentTitle';
 import { usePagination } from '../../hooks/usePagination';
-import { getFavorites } from '../../services/editalService';
-import EditalCard from '../../components/common/EditalCard';
+import { getFavoriteEditaisFomento } from '../../services/editalFomentoService';
+import EditalFomentoCard from '../../components/common/EditalFomentoCard';
 import Pagination from '../../components/ui/Pagination';
 import Spinner from '../../components/ui/Spinner';
 import EmptyState from '../../components/ui/EmptyState';
@@ -16,12 +16,15 @@ export default function FavoriteEditaisPage() {
 
   useEffect(() => {
     setLoading(true);
-    getFavorites({ page, limit: 12 })
+    getFavoriteEditaisFomento({ page, limit: 12 })
       .then((res) => {
         setEditais(res?.data || []);
         setTotal(res?.total || 0);
       })
-      .catch(() => setEditais([]))
+      .catch(() => {
+        setEditais([]);
+        setTotal(0);
+      })
       .finally(() => setLoading(false));
   }, [page, setTotal]);
 
@@ -32,12 +35,12 @@ export default function FavoriteEditaisPage() {
       {loading ? (
         <Spinner size="lg" className="py-20" />
       ) : editais.length === 0 ? (
-        <EmptyState icon={Star} title="Nenhum edital favorito" description="Favorite editais para acompanha-los aqui." />
+        <EmptyState icon={Star} title="Nenhum edital favorito" description="Favorite editais de fomento para acompanha-los aqui." />
       ) : (
         <>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {editais.map((edital) => (
-              <EditalCard key={edital.id} edital={edital} />
+              <EditalFomentoCard key={edital.id} edital={edital} />
             ))}
           </div>
           <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />

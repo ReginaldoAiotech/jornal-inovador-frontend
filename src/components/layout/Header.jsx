@@ -56,8 +56,13 @@ export default function Header() {
 
   const navLinks = [
     { label: 'Noticias', path: ROUTES.ARTICLES },
-    { label: 'Editais', path: ROUTES.EDITAIS_FOMENTO },
     { label: 'Classificados', path: ROUTES.CLASSIFIEDS },
+    ...(isAuthenticated
+      ? [
+          { label: 'Editais', path: ROUTES.EDITAIS_FOMENTO },
+          { label: 'Cursos', path: ROUTES.COURSES },
+        ]
+      : []),
   ];
 
   const isActive = (path) => location.pathname === path || location.pathname.startsWith(path + '/');
@@ -146,8 +151,8 @@ export default function Header() {
                 {dropdownOpen && (
                   <div className="absolute right-0 mt-1 w-52 bg-white rounded-xl shadow-lg border border-gray-100 py-1.5 z-50">
                     <div className="px-4 py-2 border-b border-gray-100">
-                      <p className="text-xs text-gray-400">Logado como</p>
-                      <p className="text-sm font-medium text-gray-800 truncate">{user.email}</p>
+                      {user.name && <p className="text-sm font-medium text-gray-800 truncate">{user.name}</p>}
+                      <p className="text-xs text-gray-400 truncate">{user.email}</p>
                     </div>
                     <Link
                       to={ROUTES.DASHBOARD}

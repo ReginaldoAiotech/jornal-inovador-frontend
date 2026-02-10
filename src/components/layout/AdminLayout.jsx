@@ -1,12 +1,23 @@
+import { useState, useEffect } from 'react';
 import { Outlet } from 'react-router-dom';
-import { LayoutDashboard, Newspaper, ScrollText, MessageSquare, Users } from 'lucide-react';
+import { LayoutDashboard, Newspaper, FileText, MessageSquare, GraduationCap, Users, MessageCircle } from 'lucide-react';
 import Header from './Header';
 import Sidebar from './Sidebar';
 import { ROUTES } from '../../constants/routes';
 import { useAuth } from '../../hooks/useAuth';
+import { getPendingComments } from '../../services/courseService';
 
 export default function AdminLayout() {
   const { isAdmin } = useAuth();
+  const [pendingCount, setPendingCount] = useState(0);
+
+  useEffect(() => {
+    if (isAdmin) {
+      getPendingComments({ limit: 1 })
+        .then((res) => setPendingCount(res?.data?.total || res?.total || 0))
+        .catch(() => {});
+    }
+  }, [isAdmin]);
 
   const sidebarItems = [
     { label: 'Dashboard', path: ROUTES.ADMIN, icon: LayoutDashboard, end: true },
@@ -14,7 +25,9 @@ export default function AdminLayout() {
     { label: 'Classificados', path: ROUTES.ADMIN_CLASSIFIEDS, icon: MessageSquare },
     ...(isAdmin
       ? [
-          { label: 'Editais', path: ROUTES.ADMIN_EDITAIS, icon: ScrollText },
+          { label: 'Editais Fomento', path: ROUTES.ADMIN_EDITAIS_FOMENTO, icon: FileText },
+          { label: 'Cursos', path: ROUTES.ADMIN_COURSES, icon: GraduationCap },
+          { label: 'Comentarios', path: ROUTES.ADMIN_PENDING_COMMENTS, icon: MessageCircle, badge: pendingCount },
           { label: 'Usuarios', path: ROUTES.ADMIN_USERS, icon: Users },
         ]
       : []),

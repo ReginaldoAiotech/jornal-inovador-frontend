@@ -1,8 +1,9 @@
 import { useState, useEffect, useMemo } from 'react';
-import { FileText, MapPin, Lock, TrendingUp, MessageCircle, SlidersHorizontal, X } from 'lucide-react';
+import { FileText, MapPin, Lock, TrendingUp, Heart, MessageCircle, SlidersHorizontal, X } from 'lucide-react';
 import { useDocumentTitle } from '../../hooks/useDocumentTitle';
 import { useDebounce } from '../../hooks/useDebounce';
-import { getEditaisFomento, getEstados } from '../../services/editalFomentoService';
+import { useAuth } from '../../hooks/useAuth';
+import { getEditaisFomento, getEstados, getFavoriteEditaisFomento } from '../../services/editalFomentoService';
 import SectionTitle from '../../components/common/SectionTitle';
 import EditalFomentoCard from '../../components/common/EditalFomentoCard';
 import SearchInput from '../../components/ui/SearchInput';
@@ -64,7 +65,9 @@ function AreaTag({ label, active, onClick }) {
 
 export default function EditalFomentoListPage() {
   useDocumentTitle('Editais');
+  const { isAuthenticated } = useAuth();
   const [allEditais, setAllEditais] = useState([]);
+  const [favoriteIds, setFavoriteIds] = useState(new Set());
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [estado, setEstado] = useState('');
@@ -74,17 +77,30 @@ export default function EditalFomentoListPage() {
   const [chatOpen, setChatOpen] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [page, setPage] = useState(1);
+  const [showFavorites, setShowFavorites] = useState(false);
   const debouncedSearch = useDebounce(search);
 
-  // Carregar todos os editais e estados uma unica vez
+  // Carregar todos os editais, estados e favoritos
   useEffect(() => {
     setLoading(true);
-    Promise.allSettled([getEditaisFomento({ limit: 100 }), getEstados()])
-      .then(([editaisResult, estadosResult]) => {
+    const promises = [getEditaisFomento({ limit: 100 }), getEstados()];
+    if (isAuthenticated) promises.push(getFavoriteEditaisFomento({ limit: 100 }));
+
+    Promise.allSettled(promises)
+      .then(([editaisResult, estadosResult, favResult]) => {
+        // Extrair IDs dos favoritos
+        const favIds = new Set();
+        if (favResult?.status === 'fulfilled') {
+          const favData = favResult.value?.data || favResult.value || [];
+          (Array.isArray(favData) ? favData : []).forEach((e) => favIds.add(e.id));
+        }
+        setFavoriteIds(favIds);
+
         if (editaisResult.status === 'fulfilled') {
           const data = editaisResult.value?.data || editaisResult.value || [];
           const list = (Array.isArray(data) ? data : []).map((e) => ({
             ...e,
+            isFavorited: favIds.has(e.id),
             _effectiveStatus: getEffectiveEditalStatus(e),
           }));
           setAllEditais(list);
@@ -95,7 +111,7 @@ export default function EditalFomentoListPage() {
         }
       })
       .finally(() => setLoading(false));
-  }, []);
+  }, [isAuthenticated]);
 
   // Stats calculadas com status efetivo
   const stats = useMemo(() => {
@@ -115,6 +131,7 @@ export default function EditalFomentoListPage() {
   const filteredEditais = useMemo(() => {
     return allEditais
       .filter((e) => {
+        if (showFavorites && !e.isFavorited) return false;
         if (status && e._effectiveStatus !== status) return false;
         if (estado && e.estado !== estado) return false;
         if (area && !(e.areasAtuacao || []).includes(area)) return false;
@@ -136,7 +153,7 @@ export default function EditalFomentoListPage() {
         const dateB = b.prazoSubmissaoFase1 ? new Date(b.prazoSubmissaoFase1).getTime() : Infinity;
         return dateA - dateB;
       });
-  }, [allEditais, status, estado, area, debouncedSearch]);
+  }, [allEditais, status, estado, area, debouncedSearch, showFavorites]);
 
   // Paginacao no frontend
   const totalPages = Math.ceil(filteredEditais.length / PER_PAGE) || 1;
@@ -145,7 +162,7 @@ export default function EditalFomentoListPage() {
   // Resetar pagina quando filtros mudam
   useEffect(() => {
     setPage(1);
-  }, [status, estado, area, debouncedSearch]);
+  }, [status, estado, area, debouncedSearch, showFavorites]);
 
   // Extrair areas e FAPs unicos de todos os editais
   const { allAreas, allFaps } = useMemo(() => {
@@ -167,11 +184,18 @@ export default function EditalFomentoListPage() {
 
   const activeFilterCount = [estado, status, area].filter(Boolean).length;
 
+  const handleToggleFavorite = (id) => {
+    setAllEditais((prev) =>
+      prev.map((e) => (e.id === id ? { ...e, isFavorited: !e.isFavorited } : e))
+    );
+  };
+
   const clearFilters = () => {
     setEstado('');
     setStatus('');
     setArea('');
     setSearch('');
+    setShowFavorites(false);
   };
 
   // TODO: substituir pelo endpoint real de chat com IA
@@ -230,10 +254,16 @@ export default function EditalFomentoListPage() {
         {/* Status chips */}
         <div className="flex items-center gap-2 mt-3 overflow-x-auto pb-1">
           <span className="text-xs text-gray-400 mr-1 shrink-0">Status:</span>
-          <Chip label="Todos" active={!status} onClick={() => setStatus('')} />
-          <Chip label="Abertos" active={status === 'ABERTO'} onClick={() => setStatus(status === 'ABERTO' ? '' : 'ABERTO')} />
-          <Chip label="Encerrados" active={status === 'ENCERRADO'} onClick={() => setStatus(status === 'ENCERRADO' ? '' : 'ENCERRADO')} />
-          <Chip label="Fluxo continuo" active={status === 'CONTINUO'} onClick={() => setStatus(status === 'CONTINUO' ? '' : 'CONTINUO')} />
+          <Chip label="Todos" active={!status && !showFavorites} onClick={() => { setStatus(''); setShowFavorites(false); }} />
+          <Chip label="Abertos" active={status === 'ABERTO'} onClick={() => { setStatus(status === 'ABERTO' ? '' : 'ABERTO'); setShowFavorites(false); }} />
+          <Chip label="Encerrados" active={status === 'ENCERRADO'} onClick={() => { setStatus(status === 'ENCERRADO' ? '' : 'ENCERRADO'); setShowFavorites(false); }} />
+          <Chip label="Fluxo continuo" active={status === 'CONTINUO'} onClick={() => { setStatus(status === 'CONTINUO' ? '' : 'CONTINUO'); setShowFavorites(false); }} />
+          {isAuthenticated && (
+            <>
+              <span className="w-px h-5 bg-gray-200 shrink-0" />
+              <Chip label="Favoritos" active={showFavorites} onClick={() => { setShowFavorites(!showFavorites); setStatus(''); }} />
+            </>
+          )}
         </div>
 
         {/* Filtros expandidos */}
@@ -291,7 +321,7 @@ export default function EditalFomentoListPage() {
         <>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {paginatedEditais.map((edital) => (
-              <EditalFomentoCard key={edital.id} edital={edital} />
+              <EditalFomentoCard key={edital.id} edital={edital} onToggleFavorite={handleToggleFavorite} />
             ))}
           </div>
           <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />

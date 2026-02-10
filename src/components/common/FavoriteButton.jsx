@@ -1,10 +1,14 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Heart } from 'lucide-react';
 import { cn } from '../../utils/cn';
 
-export default function FavoriteButton({ isFavorited: initial = false, onClick }) {
-  const [favorited, setFavorited] = useState(initial);
+export default function FavoriteButton({ isFavorited = false, onClick }) {
+  const [favorited, setFavorited] = useState(isFavorited);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    setFavorited(isFavorited);
+  }, [isFavorited]);
 
   const handleClick = async (e) => {
     e.preventDefault();
