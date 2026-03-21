@@ -215,7 +215,7 @@ export default function EditalFomentoListPage() {
       {stats && (
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
           <StatCard icon={FileText} label="Total de editais" value={stats.total} />
-          <StatCard icon={TrendingUp} label="Abertos" value={stats.abertos} color="text-green-500" />
+          <StatCard icon={TrendingUp} label="Abertos" value={stats.abertos + stats.continuos} color="text-green-500" />
           <StatCard icon={Lock} label="Encerrados" value={stats.fechados} color="text-red-500" />
           <StatCard icon={TrendingUp} label="Fluxo continuo" value={stats.continuos} color="text-purple-500" />
           <StatCard icon={MapPin} label="Estados" value={estados.length} color="text-blue-500" />
