@@ -16,7 +16,6 @@ import ArticleCommentSection from '../../components/common/ArticleCommentSection
 import ImageGallery from '../../components/common/ImageGallery';
 import { ROUTES } from '../../constants/routes';
 import { readingTime } from '../../utils/formatters';
-import { MOCK_ARTICLES } from '../../constants/mockData';
 
 export default function ArticleDetailPage() {
   const { id } = useParams();
@@ -39,36 +38,24 @@ export default function ArticleDetailPage() {
           setArticle(data);
           return data;
         }
-        // Fallback para mock
-        const mock = MOCK_ARTICLES.find((a) => a.id === id);
-        if (mock) { setArticle(mock); return mock; }
         setError(true);
         return null;
       })
       .catch(() => {
-        // Tentar encontrar no mock
-        const mock = MOCK_ARTICLES.find((a) => a.id === id);
-        if (mock) { setArticle(mock); return mock; }
         setError(true);
         return null;
       })
       .then((data) => {
         if (!data?.category) return;
-        // Buscar relacionadas: tenta API, fallback para mock
         getArticles({ published: true })
           .then((allRes) => {
             let all = allRes?.data || allRes || [];
             all = Array.isArray(all) ? all : [];
-            if (all.length === 0) all = MOCK_ARTICLES;
             setRelated(
               all.filter((a) => a.id !== data.id && a.category === data.category).slice(0, 3)
             );
           })
-          .catch(() => {
-            setRelated(
-              MOCK_ARTICLES.filter((a) => a.id !== data.id && a.category === data.category).slice(0, 3)
-            );
-          });
+          .catch(() => setRelated([]));
       })
       .finally(() => setLoading(false));
   }, [id]);

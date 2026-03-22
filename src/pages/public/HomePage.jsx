@@ -16,7 +16,6 @@ import StatsSection from '../../components/common/StatsSection';
 import NewsletterSection from '../../components/common/NewsletterSection';
 import Spinner from '../../components/ui/Spinner';
 import { ROUTES } from '../../constants/routes';
-import { MOCK_ARTICLES, MOCK_CLASSIFIEDS } from '../../constants/mockData';
 
 export default function HomePage() {
   useDocumentTitle(null);
@@ -35,13 +34,12 @@ export default function HomePage() {
           getClassifieds({ limit: 6 }),
           getEditaisFomentoStats(),
         ]);
-        // Artigos: usa mock se API retornar vazio
+        // Artigos
         let artData = [];
         if (artRes.status === 'fulfilled') {
           const data = artRes.value?.data || artRes.value || [];
           artData = Array.isArray(data) ? data : [];
         }
-        if (artData.length === 0) artData = MOCK_ARTICLES;
         setArticles(artData);
 
         // Editais
@@ -50,13 +48,12 @@ export default function HomePage() {
           setEditais(Array.isArray(data) ? data : []);
         }
 
-        // Classificados: usa mock se API retornar vazio
+        // Classificados
         let clsData = [];
         if (clsRes.status === 'fulfilled') {
           const data = clsRes.value?.data || clsRes.value || [];
           clsData = Array.isArray(data) ? data : [];
         }
-        if (clsData.length === 0) clsData = MOCK_CLASSIFIEDS;
         setClassifieds(clsData);
 
         // Stats
@@ -64,10 +61,10 @@ export default function HomePage() {
           ? (statsRes.value?.data || statsRes.value)
           : null;
         setStats({
-          articles: artData.length || 50,
+          articles: artData.length,
           editais: sData ? ((sData.total || 0) - (sData.fechados || 0)) : 0,
-          classifieds: clsData.length || 20,
-          users: 150,
+          classifieds: clsData.length,
+          users: sData?.users || 0,
         });
       } finally {
         setLoading(false);

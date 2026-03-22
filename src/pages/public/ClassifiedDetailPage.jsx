@@ -8,7 +8,6 @@ import DateDisplay from '../../components/common/DateDisplay';
 import Spinner from '../../components/ui/Spinner';
 import EmptyState from '../../components/ui/EmptyState';
 import { ROUTES } from '../../constants/routes';
-import { MOCK_CLASSIFIEDS } from '../../constants/mockData';
 
 export default function ClassifiedDetailPage() {
   const { id } = useParams();
@@ -22,14 +21,9 @@ export default function ClassifiedDetailPage() {
     getClassifiedById(id)
       .then((res) => {
         const data = res?.data || res;
-        if (data && data.title) { setClassified(data); return; }
-        const mock = MOCK_CLASSIFIEDS.find((c) => c.id === id);
-        if (mock) setClassified(mock);
+        if (data && data.title) setClassified(data);
       })
-      .catch(() => {
-        const mock = MOCK_CLASSIFIEDS.find((c) => c.id === id);
-        if (mock) setClassified(mock);
-      })
+      .catch(() => {})
       .finally(() => setLoading(false));
   }, [id]);
 

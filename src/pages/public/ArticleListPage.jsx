@@ -10,7 +10,6 @@ import Spinner from '../../components/ui/Spinner';
 import EmptyState from '../../components/ui/EmptyState';
 import { ArticleCategory, ARTICLE_CATEGORY_LABELS } from '../../constants/enums';
 import { cn } from '../../utils/cn';
-import { MOCK_ARTICLES } from '../../constants/mockData';
 
 export default function ArticleListPage() {
   useDocumentTitle('Noticias');
@@ -39,10 +38,9 @@ export default function ArticleListPage() {
     getArticles(params)
       .then((res) => {
         const data = res?.data || res || [];
-        const list = Array.isArray(data) ? data : [];
-        setArticles(list.length > 0 ? list : MOCK_ARTICLES);
+        setArticles(Array.isArray(data) ? data : []);
       })
-      .catch(() => setArticles(MOCK_ARTICLES))
+      .catch(() => setArticles([]))
       .finally(() => setLoading(false));
   }, [debouncedSearch, selectedCategory, dateFrom, dateTo, sortBy, sortOrder]);
 

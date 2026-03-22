@@ -11,7 +11,6 @@ import Spinner from '../../components/ui/Spinner';
 import EmptyState from '../../components/ui/EmptyState';
 import { ClassifiedCategory, CLASSIFIED_CATEGORY_LABELS } from '../../constants/enums';
 import { cn } from '../../utils/cn';
-import { MOCK_CLASSIFIEDS } from '../../constants/mockData';
 
 export default function ClassifiedListPage() {
   useDocumentTitle('Classificados');
@@ -32,10 +31,10 @@ export default function ClassifiedListPage() {
       .then((res) => {
         const data = res?.data || res || [];
         const list = Array.isArray(data) ? data : [];
-        setClassifieds(list.length > 0 ? list : MOCK_CLASSIFIEDS);
-        setTotal(res?.total || list.length || MOCK_CLASSIFIEDS.length);
+        setClassifieds(list);
+        setTotal(res?.total || list.length);
       })
-      .catch(() => { setClassifieds(MOCK_CLASSIFIEDS); setTotal(MOCK_CLASSIFIEDS.length); })
+      .catch(() => { setClassifieds([]); setTotal(0); })
       .finally(() => setLoading(false));
   }, [page, debouncedSearch, category, setTotal]);
 
