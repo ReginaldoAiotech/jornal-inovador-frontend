@@ -3,12 +3,14 @@ import { Link } from 'react-router-dom';
 import { useDocumentTitle } from '../../hooks/useDocumentTitle';
 import { useAuth } from '../../hooks/useAuth';
 import { getArticles, getTrendingArticles } from '../../services/articleService';
+import { getClassifieds } from '../../services/classifiedService';
 import { getEditaisFomento, getEditaisFomentoStats } from '../../services/editalFomentoService';
 import { getEffectiveEditalStatus } from '../../utils/formatters';
 import HeroSection from '../../components/common/HeroSection';
 import NewsTicker from '../../components/common/NewsTicker';
 import SectionTitle from '../../components/common/SectionTitle';
 import ArticleCard from '../../components/common/ArticleCard';
+import ClassifiedCard from '../../components/common/ClassifiedCard';
 import EditalFomentoCard from '../../components/common/EditalFomentoCard';
 import CategorySection from '../../components/common/CategorySection';
 import StatsSection from '../../components/common/StatsSection';
@@ -25,6 +27,7 @@ export default function HomePage() {
   const { isAuthenticated } = useAuth();
   const [articles, setArticles] = useState([]);
   const [trending, setTrending] = useState([]);
+  const [classifieds, setClassifieds] = useState([]);
   const [editais, setEditais] = useState([]);
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -32,9 +35,10 @@ export default function HomePage() {
   useEffect(() => {
     async function fetchData() {
       try {
-        const [artRes, trendRes, edtRes, statsRes] = await Promise.allSettled([
+        const [artRes, trendRes, clsRes, edtRes, statsRes] = await Promise.allSettled([
           getArticles({ published: true, limit: 12 }),
           getTrendingArticles({ limit: 5, days: 30 }),
+          getClassifieds({ limit: 4 }),
           getEditaisFomento({ limit: 100, status: 'ABERTO' }),
           getEditaisFomentoStats(),
         ]);
@@ -49,6 +53,12 @@ export default function HomePage() {
         if (trendRes.status === 'fulfilled') {
           const data = trendRes.value?.data || trendRes.value || [];
           setTrending(Array.isArray(data) ? data : []);
+        }
+
+        // Classificados
+        if (clsRes.status === 'fulfilled') {
+          const data = clsRes.value?.data || clsRes.value || [];
+          setClassifieds(Array.isArray(data) ? data : []);
         }
 
         // Editais - ordenar por proximidade de vencimento
@@ -82,7 +92,7 @@ export default function HomePage() {
         setStats({
           articles: Array.isArray(artData) ? artData.length : 0,
           editais: sData ? ((sData.total || 0) - (sData.fechados || 0)) : 0,
-          classifieds: 0,
+          classifieds: clsRes.status === 'fulfilled' ? (Array.isArray(clsRes.value?.data || clsRes.value) ? (clsRes.value?.data || clsRes.value).length : 0) : 0,
           users: sData?.users || 0,
         });
       } finally {
@@ -213,6 +223,18 @@ export default function HomePage() {
                 </div>
               </div>
             )}
+          </div>
+        </section>
+      )}
+
+      {/* === Classificados === */}
+      {classifieds.length > 0 && (
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 py-12">
+          <SectionTitle title="Classificados recentes" linkTo={ROUTES.CLASSIFIEDS} />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {classifieds.map((c) => (
+              <ClassifiedCard key={c.id} classified={c} />
+            ))}
           </div>
         </section>
       )}

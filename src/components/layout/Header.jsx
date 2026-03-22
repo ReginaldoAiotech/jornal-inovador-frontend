@@ -56,8 +56,8 @@ export default function Header() {
 
   const navLinks = [
     { label: 'Noticias', path: ROUTES.ARTICLES },
+    { label: 'Classificados', path: ROUTES.CLASSIFIEDS },
     { label: 'Editais', path: isAuthenticated ? ROUTES.EDITAIS_FOMENTO : ROUTES.LOGIN },
-    { label: 'Classificados', path: isAuthenticated ? ROUTES.CLASSIFIEDS : ROUTES.LOGIN },
     { label: 'Cursos', path: isAuthenticated ? ROUTES.COURSES : ROUTES.LOGIN },
   ];
 
