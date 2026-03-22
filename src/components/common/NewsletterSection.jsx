@@ -1,16 +1,26 @@
 import { useState } from 'react';
 import { Send, CheckCircle } from 'lucide-react';
+import api from '../../services/api';
+import { API } from '../../constants/api';
+import toast from 'react-hot-toast';
 
 export default function NewsletterSection() {
   const [email, setEmail] = useState('');
   const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (email.trim()) {
-      // TODO: integrar com backend
+    if (!email.trim()) return;
+    setLoading(true);
+    try {
+      await api.post(API.NEWSLETTER.SUBSCRIBE, { email: email.trim() });
       setSubmitted(true);
       setEmail('');
+    } catch {
+      toast.error('Erro ao realizar inscricao. Tente novamente.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -42,10 +52,11 @@ export default function NewsletterSection() {
               />
               <button
                 type="submit"
-                className="flex items-center justify-center gap-2 bg-accent-500 hover:bg-accent-600 text-white px-6 py-3 rounded-lg font-medium text-sm transition-colors"
+                disabled={loading}
+                className="flex items-center justify-center gap-2 bg-accent-500 hover:bg-accent-600 text-white px-6 py-3 rounded-lg font-medium text-sm transition-colors disabled:opacity-50"
               >
                 <Send className="h-4 w-4" />
-                Inscrever-se
+                {loading ? 'Inscrevendo...' : 'Inscrever-se'}
               </button>
             </form>
           )}

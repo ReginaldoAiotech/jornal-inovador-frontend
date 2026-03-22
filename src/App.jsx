@@ -20,12 +20,14 @@ import LoginPage from './pages/public/LoginPage';
 import RegisterPage from './pages/public/RegisterPage';
 import EditalFomentoListPage from './pages/public/EditalFomentoListPage';
 import EditalFomentoDetailPage from './pages/public/EditalFomentoDetailPage';
+import AuthorPage from './pages/public/AuthorPage';
 import NotFoundPage from './pages/public/NotFoundPage';
 
 import DashboardPage from './pages/dashboard/DashboardPage';
 import MyClassifiedsPage from './pages/dashboard/MyClassifiedsPage';
 import CreateClassifiedPage from './pages/dashboard/CreateClassifiedPage';
 import EditClassifiedPage from './pages/dashboard/EditClassifiedPage';
+import FavoriteArticlesPage from './pages/dashboard/FavoriteArticlesPage';
 import FavoriteEditaisPage from './pages/dashboard/FavoriteEditaisPage';
 import ProfilePage from './pages/dashboard/ProfilePage';
 
@@ -43,6 +45,7 @@ import ModuleLessonsPage from './pages/admin/ModuleLessonsPage';
 import LessonFormPage from './pages/admin/LessonFormPage';
 import ManageLessonCommentsPage from './pages/admin/ManageLessonCommentsPage';
 import PendingCommentsPage from './pages/admin/PendingCommentsPage';
+import PendingArticleCommentsPage from './pages/admin/PendingArticleCommentsPage';
 import ManageUsersPage from './pages/admin/ManageUsersPage';
 
 export default function App() {
@@ -61,6 +64,7 @@ export default function App() {
           <Route path="cursos" element={<CourseListPage />} />
           <Route path="cursos/:id" element={<CourseDetailPage />} />
           <Route path="cursos/:courseId/aulas/:lessonId" element={<LessonPage />} />
+          <Route path="autor/:authorId" element={<AuthorPage />} />
           <Route path="classificados" element={<ClassifiedListPage />} />
           <Route path="classificados/:id" element={<ClassifiedDetailPage />} />
           <Route path="entrar" element={<LoginPage />} />
@@ -74,6 +78,7 @@ export default function App() {
             <Route path="painel/meus-classificados" element={<MyClassifiedsPage />} />
             <Route path="painel/classificados/novo" element={<CreateClassifiedPage />} />
             <Route path="painel/classificados/:id/editar" element={<EditClassifiedPage />} />
+            <Route path="painel/artigos-favoritos" element={<FavoriteArticlesPage />} />
             <Route path="painel/editais-favoritos" element={<FavoriteEditaisPage />} />
             <Route path="painel/perfil" element={<ProfilePage />} />
           </Route>
@@ -85,6 +90,7 @@ export default function App() {
             <Route path="admin" element={<AdminDashboardPage />} />
             <Route path="admin/artigos" element={<ManageArticlesPage />} />
             <Route path="admin/artigos/novo" element={<ArticleFormPage />} />
+            <Route path="admin/artigos/comentarios" element={<PendingArticleCommentsPage />} />
             <Route path="admin/artigos/:id/editar" element={<ArticleFormPage />} />
             <Route path="admin/classificados" element={<ModerateClassifiedsPage />} />
 

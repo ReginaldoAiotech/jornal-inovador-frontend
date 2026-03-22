@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, Clock, User } from 'lucide-react';
+import { ArrowLeft, Clock, User, Heart } from 'lucide-react';
 import { useDocumentTitle } from '../../hooks/useDocumentTitle';
-import { getArticleById, getArticles } from '../../services/articleService';
+import { useAuth } from '../../hooks/useAuth';
+import { getArticleById, getArticles, toggleArticleFavorite } from '../../services/articleService';
+import toast from 'react-hot-toast';
 import CategoryBadge from '../../components/common/CategoryBadge';
 import DateDisplay from '../../components/common/DateDisplay';
 import ArticleCard from '../../components/common/ArticleCard';
@@ -10,16 +12,20 @@ import ShareButtons from '../../components/common/ShareButtons';
 import Badge from '../../components/ui/Badge';
 import Spinner from '../../components/ui/Spinner';
 import EmptyState from '../../components/ui/EmptyState';
+import ArticleCommentSection from '../../components/common/ArticleCommentSection';
+import ImageGallery from '../../components/common/ImageGallery';
 import { ROUTES } from '../../constants/routes';
 import { readingTime } from '../../utils/formatters';
 import { MOCK_ARTICLES } from '../../constants/mockData';
 
 export default function ArticleDetailPage() {
   const { id } = useParams();
+  const { isAuthenticated } = useAuth();
   const [article, setArticle] = useState(null);
   const [related, setRelated] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const [isFavorited, setIsFavorited] = useState(false);
 
   useDocumentTitle(article?.title || 'Noticia');
 
@@ -67,6 +73,17 @@ export default function ArticleDetailPage() {
       .finally(() => setLoading(false));
   }, [id]);
 
+  const handleToggleFavorite = async () => {
+    if (!isAuthenticated) return;
+    try {
+      const res = await toggleArticleFavorite(id);
+      setIsFavorited(res?.favorited ?? !isFavorited);
+      toast.success(res?.favorited ? 'Artigo favoritado!' : 'Removido dos favoritos');
+    } catch {
+      toast.error('Erro ao favoritar');
+    }
+  };
+
   if (loading) return <Spinner size="lg" className="py-20" />;
   if (error || !article) return <EmptyState title="Noticia nao encontrada" />;
 
@@ -106,9 +123,20 @@ export default function ArticleDetailPage() {
         </div>
 
         {/* Titulo */}
-        <h1 className="text-3xl md:text-4xl font-bold font-heading text-gray-900 mb-3 leading-tight">
-          {article.title}
-        </h1>
+        <div className="flex items-start justify-between gap-3 mb-3">
+          <h1 className="text-3xl md:text-4xl font-bold font-heading text-gray-900 leading-tight">
+            {article.title}
+          </h1>
+          {isAuthenticated && (
+            <button
+              onClick={handleToggleFavorite}
+              className="shrink-0 mt-1 p-2 rounded-full hover:bg-red-50 transition-colors"
+              title={isFavorited ? 'Remover dos favoritos' : 'Favoritar'}
+            >
+              <Heart className={`h-6 w-6 ${isFavorited ? 'fill-red-500 text-red-500' : 'text-gray-400'}`} />
+            </button>
+          )}
+        </div>
 
         {/* Subtitulo */}
         {article.headline && (
@@ -126,11 +154,13 @@ export default function ArticleDetailPage() {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 py-4 mb-8 border-y border-gray-200">
           {article.author ? (
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-primary-100 text-primary-600 flex items-center justify-center">
+              <Link to={`/autor/${article.author.id || article.authorId}`} className="w-10 h-10 rounded-full bg-primary-100 text-primary-600 flex items-center justify-center hover:bg-primary-200 transition-colors">
                 <User className="h-5 w-5" />
-              </div>
+              </Link>
               <div>
-                <p className="text-sm font-medium text-gray-900">{article.author.name}</p>
+                <Link to={`/autor/${article.author.id || article.authorId}`} className="text-sm font-medium text-gray-900 hover:text-primary-500 transition-colors">
+                  {article.author.name}
+                </Link>
                 <DateDisplay date={article.publishedAt || article.createdAt} className="text-xs text-gray-500" />
               </div>
             </div>
@@ -154,6 +184,9 @@ export default function ArticleDetailPage() {
           dangerouslySetInnerHTML={{ __html: article.content }}
         />
 
+        {/* Galeria de imagens */}
+        <ImageGallery images={article.gallery} />
+
         {/* Tags */}
         {article.keywords?.length > 0 && (
           <div className="flex flex-wrap gap-2 pt-6 border-t border-gray-200 mb-8">
@@ -168,6 +201,9 @@ export default function ArticleDetailPage() {
         <div className="flex justify-center py-6 border-t border-gray-200 mb-8">
           <ShareButtons title={article.title} />
         </div>
+
+        {/* Comentarios */}
+        <ArticleCommentSection articleId={id} />
       </article>
 
       {/* Noticias relacionadas */}

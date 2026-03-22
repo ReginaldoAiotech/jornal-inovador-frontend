@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Plus, Pencil, Trash2, Eye, EyeOff } from 'lucide-react';
+import { Plus, Pencil, Trash2, Eye, EyeOff, Clock, Calendar } from 'lucide-react';
 import { useDocumentTitle } from '../../hooks/useDocumentTitle';
 import { getArticles, deleteArticle } from '../../services/articleService';
 import DataTable from '../../components/common/DataTable';
@@ -44,7 +44,13 @@ export default function ManageArticlesPage() {
   const columns = [
     { key: 'title', label: 'Titulo', render: (row) => <span className="font-medium line-clamp-1">{row.title}</span> },
     { key: 'category', label: 'Categoria', render: (row) => <CategoryBadge category={row.category} /> },
-    { key: 'published', label: 'Publicado', render: (row) => row.published ? <Eye className="h-4 w-4 text-green-500" /> : <EyeOff className="h-4 w-4 text-gray-400" /> },
+    {
+      key: 'status', label: 'Status', render: (row) => {
+        if (row.published) return <span className="inline-flex items-center gap-1 text-xs text-green-600"><Eye className="h-3.5 w-3.5" /> Publicado</span>;
+        if (row.scheduledAt) return <span className="inline-flex items-center gap-1 text-xs text-blue-600"><Calendar className="h-3.5 w-3.5" /> Agendado</span>;
+        return <span className="inline-flex items-center gap-1 text-xs text-gray-400"><Clock className="h-3.5 w-3.5" /> Rascunho</span>;
+      },
+    },
     { key: 'views', label: 'Views' },
     { key: 'createdAt', label: 'Data', render: (row) => formatDate(row.createdAt) },
     {

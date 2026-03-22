@@ -11,6 +11,7 @@ export const ROUTES = Object.freeze({
   COURSES: '/cursos',
   COURSE_DETAIL: '/cursos/:id',
   COURSE_LESSON: '/cursos/:courseId/aulas/:lessonId',
+  AUTHOR: '/autor/:authorId',
   LOGIN: '/entrar',
   REGISTER: '/cadastro',
 
@@ -18,6 +19,7 @@ export const ROUTES = Object.freeze({
   MY_CLASSIFIEDS: '/painel/meus-classificados',
   CREATE_CLASSIFIED: '/painel/classificados/novo',
   EDIT_CLASSIFIED: '/painel/classificados/:id/editar',
+  FAVORITE_ARTICLES: '/painel/artigos-favoritos',
   FAVORITE_EDITAIS: '/painel/editais-favoritos',
   PROFILE: '/painel/perfil',
 
@@ -38,6 +40,7 @@ export const ROUTES = Object.freeze({
   ADMIN_CREATE_LESSON: '/admin/cursos/:courseId/modulos/:moduleId/aulas/nova',
   ADMIN_EDIT_LESSON: '/admin/cursos/:courseId/modulos/:moduleId/aulas/:lessonId/editar',
   ADMIN_LESSON_COMMENTS: '/admin/cursos/aulas/:lessonId/comentarios',
+  ADMIN_ARTICLE_COMMENTS: '/admin/artigos/comentarios',
   ADMIN_PENDING_COMMENTS: '/admin/comentarios',
   ADMIN_USERS: '/admin/usuarios',
 });

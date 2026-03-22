@@ -1,20 +1,25 @@
 import { useState, useEffect } from 'react';
 import { Outlet } from 'react-router-dom';
-import { LayoutDashboard, Newspaper, FileText, MessageSquare, GraduationCap, Users, MessageCircle } from 'lucide-react';
+import { LayoutDashboard, Newspaper, FileText, MessageSquare, GraduationCap, Users, MessageCircle, MessagesSquare } from 'lucide-react';
 import Header from './Header';
 import Sidebar from './Sidebar';
 import { ROUTES } from '../../constants/routes';
 import { useAuth } from '../../hooks/useAuth';
 import { getPendingComments } from '../../services/courseService';
+import { getPendingArticleComments } from '../../services/articleService';
 
 export default function AdminLayout() {
   const { isAdmin } = useAuth();
   const [pendingCount, setPendingCount] = useState(0);
+  const [pendingArticleCount, setPendingArticleCount] = useState(0);
 
   useEffect(() => {
     if (isAdmin) {
       getPendingComments({ limit: 1 })
         .then((res) => setPendingCount(res?.data?.total || res?.total || 0))
+        .catch(() => {});
+      getPendingArticleComments({ limit: 1 })
+        .then((res) => setPendingArticleCount(res?.data?.total || res?.total || 0))
         .catch(() => {});
     }
   }, [isAdmin]);
@@ -27,7 +32,8 @@ export default function AdminLayout() {
       ? [
           { label: 'Editais Fomento', path: ROUTES.ADMIN_EDITAIS_FOMENTO, icon: FileText },
           { label: 'Cursos', path: ROUTES.ADMIN_COURSES, icon: GraduationCap },
-          { label: 'Comentarios', path: ROUTES.ADMIN_PENDING_COMMENTS, icon: MessageCircle, badge: pendingCount },
+          { label: 'Coment. Artigos', path: ROUTES.ADMIN_ARTICLE_COMMENTS, icon: MessagesSquare, badge: pendingArticleCount },
+          { label: 'Coment. Aulas', path: ROUTES.ADMIN_PENDING_COMMENTS, icon: MessageCircle, badge: pendingCount },
           { label: 'Usuarios', path: ROUTES.ADMIN_USERS, icon: Users },
         ]
       : []),

@@ -7,6 +7,15 @@ export const API = Object.freeze({
   ARTICLES: {
     BASE: '/articles',
     BY_ID: (id) => `/articles/${id}`,
+    COMMENTS: (articleId) => `/articles/${articleId}/comments`,
+    COMMENT_BY_ID: (commentId) => `/articles/comments/${commentId}`,
+    COMMENT_REPLIES: (commentId) => `/articles/comments/${commentId}/replies`,
+    COMMENTS_PENDING: '/articles/comments/pending',
+    COMMENT_MODERATE: (commentId) => `/articles/comments/${commentId}/moderate`,
+    FAVORITE: (id) => `/articles/${id}/favorite`,
+    FAVORITES: '/articles/favorites',
+    TRENDING: '/articles/trending',
+    AUTHOR: (authorId) => `/articles/authors/${authorId}`,
   },
   EDITAIS: {
     BASE: '/editais',
@@ -30,6 +39,10 @@ export const API = Object.freeze({
     FAVORITES: '/editais-fomento/favorites',
     ESTADOS: '/editais-fomento/estados',
     STATS: '/editais-fomento/stats',
+  },
+  NEWSLETTER: {
+    SUBSCRIBE: '/newsletter/subscribe',
+    UNSUBSCRIBE: '/newsletter/unsubscribe',
   },
   USERS: {
     BASE: '/users',

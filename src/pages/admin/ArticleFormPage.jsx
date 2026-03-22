@@ -10,6 +10,7 @@ import Button from '../../components/ui/Button';
 import Spinner from '../../components/ui/Spinner';
 import { ArticleCategory, ARTICLE_CATEGORY_LABELS } from '../../constants/enums';
 import { ROUTES } from '../../constants/routes';
+import { Plus, Trash2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 const categoryOptions = Object.keys(ArticleCategory).map((k) => ({
@@ -29,6 +30,7 @@ export default function ArticleFormPage() {
     title: '', headline: '', summary: '', content: '', keywords: '',
     featuredImageUrl: '', imageCaption: '', imageCredit: '', videoUrl: '',
     category: 'NEWS', section: '', published: false, featured: false,
+    scheduledAt: '', gallery: [],
   });
 
   useEffect(() => {
@@ -50,6 +52,8 @@ export default function ArticleFormPage() {
           section: data.section || '',
           published: data.published || false,
           featured: data.featured || false,
+          scheduledAt: data.scheduledAt ? data.scheduledAt.slice(0, 16) : '',
+          gallery: data.gallery || [],
         });
       })
       .catch(() => toast.error('Erro ao carregar artigo'))
@@ -72,6 +76,7 @@ export default function ArticleFormPage() {
       const data = {
         ...form,
         keywords: form.keywords ? form.keywords.split(',').map((k) => k.trim()).filter(Boolean) : [],
+        gallery: (form.gallery || []).filter((img) => img.url?.trim()),
       };
       Object.keys(data).forEach((k) => {
         if (data[k] === '' && k !== 'published' && k !== 'featured') delete data[k];
@@ -119,15 +124,93 @@ export default function ArticleFormPage() {
           <Input label="URL do video" id="videoUrl" value={form.videoUrl} onChange={handleChange('videoUrl')} />
         </div>
 
-        <div className="flex items-center gap-6 pt-4">
-          <label className="flex items-center gap-2 text-sm cursor-pointer">
-            <input type="checkbox" checked={form.published} onChange={handleChange('published')} className="rounded border-gray-300 text-primary-500 focus:ring-primary-400" />
-            Publicado
-          </label>
-          <label className="flex items-center gap-2 text-sm cursor-pointer">
-            <input type="checkbox" checked={form.featured} onChange={handleChange('featured')} className="rounded border-gray-300 text-primary-500 focus:ring-primary-400" />
-            Destaque
-          </label>
+        {/* Galeria de imagens */}
+        <div className="pt-4">
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="text-sm font-semibold text-gray-700">Galeria de imagens</h3>
+            <button
+              type="button"
+              onClick={() => setForm({ ...form, gallery: [...(form.gallery || []), { url: '', caption: '', credit: '' }] })}
+              className="text-xs text-primary-500 hover:underline flex items-center gap-1"
+            >
+              <Plus className="h-3 w-3" /> Adicionar imagem
+            </button>
+          </div>
+          {(form.gallery || []).map((img, index) => (
+            <div key={index} className="grid grid-cols-1 md:grid-cols-4 gap-2 mb-2 items-end">
+              <Input
+                label={index === 0 ? 'URL' : undefined}
+                value={img.url}
+                onChange={(e) => {
+                  const g = [...form.gallery];
+                  g[index] = { ...g[index], url: e.target.value };
+                  setForm({ ...form, gallery: g });
+                }}
+                placeholder="URL da imagem"
+              />
+              <Input
+                label={index === 0 ? 'Legenda' : undefined}
+                value={img.caption || ''}
+                onChange={(e) => {
+                  const g = [...form.gallery];
+                  g[index] = { ...g[index], caption: e.target.value };
+                  setForm({ ...form, gallery: g });
+                }}
+                placeholder="Legenda"
+              />
+              <Input
+                label={index === 0 ? 'Credito' : undefined}
+                value={img.credit || ''}
+                onChange={(e) => {
+                  const g = [...form.gallery];
+                  g[index] = { ...g[index], credit: e.target.value };
+                  setForm({ ...form, gallery: g });
+                }}
+                placeholder="Credito"
+              />
+              <button
+                type="button"
+                onClick={() => {
+                  const g = form.gallery.filter((_, i) => i !== index);
+                  setForm({ ...form, gallery: g });
+                }}
+                className="p-2 text-red-400 hover:text-red-500 self-end mb-1"
+              >
+                <Trash2 className="h-4 w-4" />
+              </button>
+            </div>
+          ))}
+        </div>
+
+        {/* Publicacao e agendamento */}
+        <div className="pt-4 space-y-4">
+          <div className="flex items-center gap-6">
+            <label className="flex items-center gap-2 text-sm cursor-pointer">
+              <input type="checkbox" checked={form.published} onChange={handleChange('published')} className="rounded border-gray-300 text-primary-500 focus:ring-primary-400" />
+              Publicado
+            </label>
+            <label className="flex items-center gap-2 text-sm cursor-pointer">
+              <input type="checkbox" checked={form.featured} onChange={handleChange('featured')} className="rounded border-gray-300 text-primary-500 focus:ring-primary-400" />
+              Destaque
+            </label>
+          </div>
+
+          {!form.published && (
+            <div className="max-w-xs">
+              <Input
+                label="Agendar publicacao"
+                id="scheduledAt"
+                type="datetime-local"
+                value={form.scheduledAt}
+                onChange={handleChange('scheduledAt')}
+              />
+              {form.scheduledAt && (
+                <p className="text-xs text-gray-500 mt-1">
+                  O artigo sera publicado automaticamente na data agendada.
+                </p>
+              )}
+            </div>
+          )}
         </div>
 
         <div className="flex gap-3 pt-4">

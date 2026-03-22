@@ -11,6 +11,7 @@ import ArticleCard from '../../components/common/ArticleCard';
 import EditalCard from '../../components/common/EditalCard';
 import ClassifiedCard from '../../components/common/ClassifiedCard';
 import CategorySection from '../../components/common/CategorySection';
+import TrendingSection from '../../components/common/TrendingSection';
 import StatsSection from '../../components/common/StatsSection';
 import NewsletterSection from '../../components/common/NewsletterSection';
 import Spinner from '../../components/ui/Spinner';
@@ -103,6 +104,9 @@ export default function HomePage() {
 
       {/* Categorias */}
       <CategorySection />
+
+      {/* Trending / Mais lidos */}
+      <TrendingSection />
 
       {/* Mais artigos */}
       {remainingArticles.length > 0 && (

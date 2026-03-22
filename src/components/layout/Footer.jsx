@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Newspaper } from 'lucide-react';
+import { Newspaper, Rss } from 'lucide-react';
 import { ROUTES } from '../../constants/routes';
 
 export default function Footer() {
@@ -24,6 +24,11 @@ export default function Footer() {
               <li><Link to={ROUTES.ARTICLES} className="hover:text-white transition-colors">Noticias</Link></li>
               <li><Link to={ROUTES.EDITAIS_FOMENTO} className="hover:text-white transition-colors">Editais</Link></li>
               <li><Link to={ROUTES.CLASSIFIEDS} className="hover:text-white transition-colors">Classificados</Link></li>
+              <li>
+                <a href={`${import.meta.env.VITE_API_URL || ''}/articles/feed/rss`} target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors inline-flex items-center gap-1">
+                  <Rss className="h-3 w-3" /> RSS Feed
+                </a>
+              </li>
             </ul>
           </div>
           <div>
