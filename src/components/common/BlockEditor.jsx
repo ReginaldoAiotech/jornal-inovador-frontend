@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import { cn } from '../../utils/cn';
 import ImageUploader from './ImageUploader';
 import {
@@ -6,6 +6,7 @@ import {
   Type, Heading1, Heading2, Heading3, Image, Quote, List,
   ListOrdered, Code, Minus, Video, AlertCircle, Columns,
   FileText, Mic, Camera, LayoutTemplate,
+  Bold, Italic, Underline, Strikethrough, Link as LinkIconLucide, Unlink, RemoveFormatting,
 } from 'lucide-react';
 
 const BLOCK_TYPES = [
@@ -298,16 +299,175 @@ function htmlToBlocks(html) {
   return blocks.length ? blocks : [createBlock('paragraph')];
 }
 
+// --- Rich text helpers ---
+
+function RichTextArea({ value, onChange, placeholder, rows = 3, className = '' }) {
+  const editorRef = useRef(null);
+  const [showLinkModal, setShowLinkModal] = useState(false);
+  const [linkUrl, setLinkUrl] = useState('');
+  const [linkText, setLinkText] = useState('');
+  const savedSelection = useRef(null);
+
+  // Sync external value → contentEditable (only on mount or when value changes externally)
+  useEffect(() => {
+    if (editorRef.current && editorRef.current.innerHTML !== value) {
+      editorRef.current.innerHTML = value || '';
+    }
+  }, []);
+
+  const handleInput = () => {
+    if (editorRef.current) {
+      onChange(editorRef.current.innerHTML);
+    }
+  };
+
+  const execCmd = (cmd, val = null) => {
+    editorRef.current?.focus();
+    document.execCommand(cmd, false, val);
+    handleInput();
+  };
+
+  const saveSelection = () => {
+    const sel = window.getSelection();
+    if (sel.rangeCount > 0) {
+      savedSelection.current = sel.getRangeAt(0).cloneRange();
+      setLinkText(sel.toString());
+    }
+  };
+
+  const restoreSelection = () => {
+    if (savedSelection.current) {
+      const sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(savedSelection.current);
+    }
+  };
+
+  const handleLink = () => {
+    saveSelection();
+    setLinkUrl('');
+    setShowLinkModal(true);
+  };
+
+  const insertLink = () => {
+    restoreSelection();
+    if (linkUrl.trim()) {
+      if (!window.getSelection().toString() && linkText) {
+        document.execCommand('insertHTML', false, `<a href="${linkUrl.trim()}" target="_blank">${linkText}</a>`);
+      } else {
+        document.execCommand('createLink', false, linkUrl.trim());
+        // Add target blank
+        const sel = window.getSelection();
+        if (sel.anchorNode) {
+          const anchor = sel.anchorNode.parentElement?.closest('a') || sel.anchorNode.parentElement;
+          if (anchor?.tagName === 'A') {
+            anchor.setAttribute('target', '_blank');
+          }
+        }
+      }
+      handleInput();
+    }
+    setShowLinkModal(false);
+  };
+
+  const removeLink = () => {
+    execCmd('unlink');
+  };
+
+  const isActive = (cmd) => {
+    try { return document.queryCommandState(cmd); } catch { return false; }
+  };
+
+  const btnClass = (cmd) => cn(
+    'p-1.5 rounded transition-colors',
+    isActive(cmd) ? 'bg-primary-100 text-primary-600' : 'text-gray-500 hover:bg-gray-100 hover:text-gray-700'
+  );
+
+  return (
+    <div className="relative">
+      {/* Toolbar */}
+      <div className="flex items-center gap-0.5 mb-1 pb-1 border-b border-gray-100">
+        <button type="button" onClick={() => execCmd('bold')} className={btnClass('bold')} title="Negrito (Ctrl+B)">
+          <Bold className="h-3.5 w-3.5" />
+        </button>
+        <button type="button" onClick={() => execCmd('italic')} className={btnClass('italic')} title="Italico (Ctrl+I)">
+          <Italic className="h-3.5 w-3.5" />
+        </button>
+        <button type="button" onClick={() => execCmd('underline')} className={btnClass('underline')} title="Sublinhado (Ctrl+U)">
+          <Underline className="h-3.5 w-3.5" />
+        </button>
+        <button type="button" onClick={() => execCmd('strikethrough')} className={btnClass('strikethrough')} title="Tachado">
+          <Strikethrough className="h-3.5 w-3.5" />
+        </button>
+        <span className="w-px h-4 bg-gray-200 mx-1" />
+        <button type="button" onClick={handleLink} className="p-1.5 rounded text-gray-500 hover:bg-gray-100 hover:text-gray-700 transition-colors" title="Inserir link">
+          <LinkIconLucide className="h-3.5 w-3.5" />
+        </button>
+        <button type="button" onClick={removeLink} className="p-1.5 rounded text-gray-500 hover:bg-gray-100 hover:text-gray-700 transition-colors" title="Remover link">
+          <Unlink className="h-3.5 w-3.5" />
+        </button>
+        <span className="w-px h-4 bg-gray-200 mx-1" />
+        <button type="button" onClick={() => execCmd('removeFormat')} className="p-1.5 rounded text-gray-500 hover:bg-gray-100 hover:text-gray-700 transition-colors" title="Limpar formatacao">
+          <RemoveFormatting className="h-3.5 w-3.5" />
+        </button>
+      </div>
+
+      {/* Content editable */}
+      <div
+        ref={editorRef}
+        contentEditable
+        onInput={handleInput}
+        onBlur={handleInput}
+        data-placeholder={placeholder}
+        className={cn(
+          'w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent overflow-y-auto',
+          'prose prose-sm max-w-none prose-a:text-primary-500 prose-a:underline prose-strong:text-gray-900',
+          '[&:empty]:before:content-[attr(data-placeholder)] [&:empty]:before:text-gray-300 [&:empty]:before:pointer-events-none',
+          className
+        )}
+        style={{ minHeight: `${rows * 1.5}rem` }}
+        suppressContentEditableWarning
+      />
+
+      {/* Link modal */}
+      {showLinkModal && (
+        <div className="absolute z-30 top-full left-0 mt-1 bg-white rounded-xl shadow-xl border border-gray-200 p-3 w-80">
+          <p className="text-xs font-medium text-gray-600 mb-2">Inserir link</p>
+          {linkText && (
+            <p className="text-xs text-gray-400 mb-2 truncate">Texto: "{linkText}"</p>
+          )}
+          <input
+            type="url"
+            value={linkUrl}
+            onChange={(e) => setLinkUrl(e.target.value)}
+            placeholder="https://exemplo.com"
+            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400 mb-2"
+            autoFocus
+            onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); insertLink(); } if (e.key === 'Escape') setShowLinkModal(false); }}
+          />
+          <div className="flex justify-end gap-2">
+            <button type="button" onClick={() => setShowLinkModal(false)} className="px-3 py-1 text-xs text-gray-500 hover:text-gray-700">
+              Cancelar
+            </button>
+            <button type="button" onClick={insertLink} className="px-3 py-1 text-xs bg-primary-500 text-white rounded-lg hover:bg-primary-600">
+              Inserir
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // --- Block renderers ---
 
 function ParagraphBlock({ block, onChange }) {
   return (
-    <textarea
+    <RichTextArea
       value={block.text}
-      onChange={(e) => onChange({ ...block, text: e.target.value })}
+      onChange={(text) => onChange({ ...block, text })}
       placeholder={block._placeholder || 'Escreva o texto do paragrafo...'}
       rows={3}
-      className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent resize-y"
     />
   );
 }
@@ -361,12 +521,12 @@ function ImageBlock({ block, onChange }) {
 function QuoteBlock({ block, onChange }) {
   return (
     <div className="border-l-4 border-accent-500 pl-4 space-y-2">
-      <textarea
+      <RichTextArea
         value={block.text}
-        onChange={(e) => onChange({ ...block, text: e.target.value })}
+        onChange={(text) => onChange({ ...block, text })}
         placeholder={block._placeholder || 'Texto da citacao...'}
         rows={2}
-        className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm italic focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent resize-y"
+        className="italic"
       />
       <input
         value={block.author || ''}
@@ -489,12 +649,12 @@ function CalloutBlock({ block, onChange }) {
           </button>
         ))}
       </div>
-      <textarea
+      <RichTextArea
         value={block.text}
-        onChange={(e) => onChange({ ...block, text: e.target.value })}
+        onChange={(text) => onChange({ ...block, text })}
         placeholder={block._placeholder || 'Texto do destaque...'}
         rows={2}
-        className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent resize-y bg-white/80"
+        className="bg-white/80"
       />
     </div>
   );
@@ -503,19 +663,17 @@ function CalloutBlock({ block, onChange }) {
 function TwoColumnsBlock({ block, onChange }) {
   return (
     <div className="grid grid-cols-2 gap-3">
-      <textarea
+      <RichTextArea
         value={block.left || ''}
-        onChange={(e) => onChange({ ...block, left: e.target.value })}
+        onChange={(left) => onChange({ ...block, left })}
         placeholder="Coluna esquerda..."
         rows={4}
-        className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent resize-y"
       />
-      <textarea
+      <RichTextArea
         value={block.right || ''}
-        onChange={(e) => onChange({ ...block, right: e.target.value })}
+        onChange={(right) => onChange({ ...block, right })}
         placeholder="Coluna direita..."
         rows={4}
-        className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent resize-y"
       />
     </div>
   );
