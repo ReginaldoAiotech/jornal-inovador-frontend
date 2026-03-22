@@ -56,13 +56,9 @@ export default function Header() {
 
   const navLinks = [
     { label: 'Noticias', path: ROUTES.ARTICLES },
-    ...(isAuthenticated
-      ? [
-          { label: 'Editais', path: ROUTES.EDITAIS_FOMENTO },
-          { label: 'Classificados', path: ROUTES.CLASSIFIEDS },
-          { label: 'Cursos', path: ROUTES.COURSES },
-        ]
-      : []),
+    { label: 'Editais', path: isAuthenticated ? ROUTES.EDITAIS_FOMENTO : ROUTES.LOGIN },
+    { label: 'Classificados', path: isAuthenticated ? ROUTES.CLASSIFIEDS : ROUTES.LOGIN },
+    { label: 'Cursos', path: isAuthenticated ? ROUTES.COURSES : ROUTES.LOGIN },
   ];
 
   const isActive = (path) => location.pathname === path || location.pathname.startsWith(path + '/');
