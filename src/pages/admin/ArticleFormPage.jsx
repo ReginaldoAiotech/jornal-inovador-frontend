@@ -264,54 +264,74 @@ export default function ArticleFormPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-6 items-start">
         {/* === COLUNA PRINCIPAL - Editor === */}
-        <div className="space-y-4">
-          {/* Cabecalho do artigo */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 space-y-4">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 space-y-5">
+          {/* Titulo */}
+          <div>
+            <label className="block text-xs font-medium text-gray-400 mb-1 uppercase tracking-wider">Titulo *</label>
             <input
               value={form.title}
               onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
               placeholder="Titulo da reportagem..."
-              className="w-full text-2xl font-bold font-heading text-gray-900 placeholder-gray-300 border-0 outline-none focus:ring-0 p-0"
+              className="w-full text-2xl font-bold font-heading text-gray-900 placeholder-gray-300 border-0 border-b border-gray-100 outline-none focus:ring-0 focus:border-primary-300 pb-3 transition-colors"
             />
+          </div>
+
+          {/* Subtitulo */}
+          <div>
+            <label className="block text-xs font-medium text-gray-400 mb-1 uppercase tracking-wider">Subtitulo</label>
             <input
               value={form.headline}
               onChange={(e) => setForm((f) => ({ ...f, headline: e.target.value }))}
-              placeholder="Subtitulo (opcional)..."
-              className="w-full text-lg text-gray-600 placeholder-gray-300 border-0 outline-none focus:ring-0 p-0"
+              placeholder="Linha de apoio da materia..."
+              className="w-full text-lg text-gray-600 placeholder-gray-300 border-0 border-b border-gray-100 outline-none focus:ring-0 focus:border-primary-300 pb-3 transition-colors"
             />
+          </div>
+
+          {/* Imagem de capa */}
+          <div>
+            <label className="block text-xs font-medium text-gray-400 mb-1 uppercase tracking-wider">Imagem de capa</label>
+            <ImageUploader
+              value={form.featuredImageUrl}
+              onChange={(url) => setForm((f) => ({ ...f, featuredImageUrl: url }))}
+            />
+            {form.featuredImageUrl && (
+              <div className="grid grid-cols-2 gap-2 mt-2">
+                <input
+                  value={form.imageCaption}
+                  onChange={(e) => setForm((f) => ({ ...f, imageCaption: e.target.value }))}
+                  placeholder="Legenda da imagem"
+                  className="rounded-lg border border-gray-200 px-3 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-primary-400"
+                />
+                <input
+                  value={form.imageCredit}
+                  onChange={(e) => setForm((f) => ({ ...f, imageCredit: e.target.value }))}
+                  placeholder="Credito (ex: Foto: Reuters)"
+                  className="rounded-lg border border-gray-200 px-3 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-primary-400"
+                />
+              </div>
+            )}
+          </div>
+
+          {/* Resumo / Lead */}
+          <div>
+            <label className="block text-xs font-medium text-gray-400 mb-1 uppercase tracking-wider">Resumo / Lead</label>
             <textarea
               value={form.summary}
               onChange={(e) => setForm((f) => ({ ...f, summary: e.target.value }))}
-              placeholder="Resumo / Lead da materia..."
-              rows={2}
+              placeholder="Resuma a materia em 2-3 frases. Esse texto aparece em destaque antes do conteudo e nos cards de listagem."
+              rows={3}
               className="w-full text-sm text-gray-700 placeholder-gray-300 border border-gray-200 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent resize-y"
             />
           </div>
 
-          {/* Imagem destaque inline */}
-          {form.featuredImageUrl && (
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-              <img
-                src={form.featuredImageUrl}
-                alt={form.title}
-                className="w-full object-cover max-h-[300px]"
-                onError={(e) => { e.target.style.display = 'none'; }}
-              />
-              {(form.imageCaption || form.imageCredit) && (
-                <p className="px-4 py-2 text-xs text-gray-500">
-                  {form.imageCaption}{form.imageCredit && ` (${form.imageCredit})`}
-                </p>
-              )}
-            </div>
-          )}
+          {/* Separador visual */}
+          <hr className="border-gray-200" />
 
           {/* Editor de blocos */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
-            <BlockEditor
-              value={form.content}
-              onChange={(html) => setForm((f) => ({ ...f, content: html }))}
-            />
-          </div>
+          <BlockEditor
+            value={form.content}
+            onChange={(html) => setForm((f) => ({ ...f, content: html }))}
+          />
         </div>
 
         {/* === SIDEBAR - Configuracoes === */}
@@ -392,27 +412,10 @@ export default function ArticleFormPage() {
             />
           </SidebarSection>
 
-          {/* Imagem destaque */}
-          <SidebarSection title="Imagem de destaque" icon={ImageIcon}>
-            <ImageUploader
-              label="Imagem principal"
-              value={form.featuredImageUrl}
-              onChange={(url) => setForm((f) => ({ ...f, featuredImageUrl: url }))}
-              compact
-            />
+          {/* Video */}
+          <SidebarSection title="Video (opcional)" icon={ImageIcon} defaultOpen={false}>
             <Input
-              label="Legenda"
-              value={form.imageCaption}
-              onChange={handleChange('imageCaption')}
-            />
-            <Input
-              label="Credito"
-              value={form.imageCredit}
-              onChange={handleChange('imageCredit')}
-              placeholder="Foto: Reuters"
-            />
-            <Input
-              label="URL do video (opcional)"
+              label="URL do video"
               value={form.videoUrl}
               onChange={handleChange('videoUrl')}
               placeholder="YouTube ou Vimeo"
