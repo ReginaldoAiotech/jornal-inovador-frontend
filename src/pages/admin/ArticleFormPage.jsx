@@ -201,7 +201,7 @@ export default function ArticleFormPage() {
 
             {form.content ? (
               <div
-                className="prose prose-lg max-w-none mb-8 prose-headings:font-heading prose-a:text-primary-500 prose-img:rounded-lg"
+                className="prose prose-lg max-w-none mb-8 prose-headings:font-heading prose-img:rounded-lg [&_a]:text-primary-500 [&_a]:underline [&_a]:decoration-primary-300 [&_a]:underline-offset-2 [&_a]:font-medium [&_a]:bg-primary-50 [&_a]:px-0.5 [&_a]:rounded [&_a]:hover:bg-primary-100 [&_a]:transition-colors"
                 dangerouslySetInnerHTML={{ __html: form.content }}
               />
             ) : (

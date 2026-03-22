@@ -421,7 +421,8 @@ function RichTextArea({ value, onChange, placeholder, rows = 3, className = '' }
         data-placeholder={placeholder}
         className={cn(
           'w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent overflow-y-auto',
-          'prose prose-sm max-w-none prose-a:text-primary-500 prose-a:underline prose-strong:text-gray-900',
+          'prose prose-sm max-w-none prose-strong:text-gray-900',
+          '[&_a]:text-primary-500 [&_a]:underline [&_a]:decoration-primary-300 [&_a]:underline-offset-2 [&_a]:font-medium [&_a]:bg-primary-50 [&_a]:px-0.5 [&_a]:rounded [&_a]:hover:bg-primary-100 [&_a]:transition-colors',
           '[&:empty]:before:content-[attr(data-placeholder)] [&:empty]:before:text-gray-300 [&:empty]:before:pointer-events-none',
           className
         )}
