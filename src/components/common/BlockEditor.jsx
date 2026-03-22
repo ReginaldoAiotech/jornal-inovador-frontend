@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react';
 import { cn } from '../../utils/cn';
+import ImageUploader from './ImageUploader';
 import {
   Plus, Trash2, ChevronUp, ChevronDown, GripVertical,
   Type, Heading1, Heading2, Heading3, Image, Quote, List,
@@ -235,40 +236,33 @@ function HeadingBlock({ block, onChange, level }) {
 function ImageBlock({ block, onChange }) {
   return (
     <div className="space-y-2">
-      <input
+      <ImageUploader
         value={block.url}
-        onChange={(e) => onChange({ ...block, url: e.target.value })}
-        placeholder="URL da imagem"
-        className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent"
+        onChange={(url) => onChange({ ...block, url })}
+        compact
       />
       {block.url && (
-        <img
-          src={block.url}
-          alt={block.alt || ''}
-          className="w-full rounded-lg max-h-64 object-cover"
-          onError={(e) => { e.target.style.display = 'none'; }}
-        />
+        <div className="grid grid-cols-3 gap-2">
+          <input
+            value={block.caption || ''}
+            onChange={(e) => onChange({ ...block, caption: e.target.value })}
+            placeholder="Legenda"
+            className="rounded-lg border border-gray-200 px-3 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-primary-400"
+          />
+          <input
+            value={block.credit || ''}
+            onChange={(e) => onChange({ ...block, credit: e.target.value })}
+            placeholder="Credito (ex: Foto: Reuters)"
+            className="rounded-lg border border-gray-200 px-3 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-primary-400"
+          />
+          <input
+            value={block.alt || ''}
+            onChange={(e) => onChange({ ...block, alt: e.target.value })}
+            placeholder="Texto alternativo"
+            className="rounded-lg border border-gray-200 px-3 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-primary-400"
+          />
+        </div>
       )}
-      <div className="grid grid-cols-3 gap-2">
-        <input
-          value={block.caption || ''}
-          onChange={(e) => onChange({ ...block, caption: e.target.value })}
-          placeholder="Legenda"
-          className="rounded-lg border border-gray-200 px-3 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-primary-400"
-        />
-        <input
-          value={block.credit || ''}
-          onChange={(e) => onChange({ ...block, credit: e.target.value })}
-          placeholder="Credito (ex: Foto: Reuters)"
-          className="rounded-lg border border-gray-200 px-3 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-primary-400"
-        />
-        <input
-          value={block.alt || ''}
-          onChange={(e) => onChange({ ...block, alt: e.target.value })}
-          placeholder="Texto alternativo"
-          className="rounded-lg border border-gray-200 px-3 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-primary-400"
-        />
-      </div>
     </div>
   );
 }

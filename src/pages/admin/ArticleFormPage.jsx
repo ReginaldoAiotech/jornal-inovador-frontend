@@ -11,6 +11,7 @@ import CategoryBadge from '../../components/common/CategoryBadge';
 import ImageGallery from '../../components/common/ImageGallery';
 import Badge from '../../components/ui/Badge';
 import BlockEditor from '../../components/common/BlockEditor';
+import ImageUploader from '../../components/common/ImageUploader';
 import { ArticleCategory, ARTICLE_CATEGORY_LABELS } from '../../constants/enums';
 import { ROUTES } from '../../constants/routes';
 import {
@@ -393,20 +394,12 @@ export default function ArticleFormPage() {
 
           {/* Imagem destaque */}
           <SidebarSection title="Imagem de destaque" icon={ImageIcon}>
-            <Input
-              label="URL da imagem"
+            <ImageUploader
+              label="Imagem principal"
               value={form.featuredImageUrl}
-              onChange={handleChange('featuredImageUrl')}
-              placeholder="https://..."
+              onChange={(url) => setForm((f) => ({ ...f, featuredImageUrl: url }))}
+              compact
             />
-            {form.featuredImageUrl && (
-              <img
-                src={form.featuredImageUrl}
-                alt="Preview"
-                className="w-full rounded-lg object-cover h-32"
-                onError={(e) => { e.target.style.display = 'none'; }}
-              />
-            )}
             <Input
               label="Legenda"
               value={form.imageCaption}

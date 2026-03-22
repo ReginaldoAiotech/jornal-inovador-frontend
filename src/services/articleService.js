@@ -71,6 +71,16 @@ export async function getArticleFavorites(params) {
   return data;
 }
 
+// Upload de imagem
+export async function uploadArticleImage(file) {
+  const formData = new FormData();
+  formData.append('image', file);
+  const { data } = await api.post(API.ARTICLES.UPLOAD_IMAGE, formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
+  return data;
+}
+
 // Trending
 export async function getTrendingArticles(params) {
   const { data } = await api.get(API.ARTICLES.TRENDING, { params });

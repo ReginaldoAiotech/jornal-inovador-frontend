@@ -7,6 +7,7 @@ export const API = Object.freeze({
   ARTICLES: {
     BASE: '/articles',
     BY_ID: (id) => `/articles/${id}`,
+    UPLOAD_IMAGE: '/articles/upload-image',
     COMMENTS: (articleId) => `/articles/${articleId}/comments`,
     COMMENT_BY_ID: (commentId) => `/articles/comments/${commentId}`,
     COMMENT_REPLIES: (commentId) => `/articles/comments/${commentId}/replies`,
