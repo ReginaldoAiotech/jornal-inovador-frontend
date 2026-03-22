@@ -56,17 +56,19 @@ export default function HomePage() {
           const data = edtRes.value?.data || edtRes.value || [];
           const list = Array.isArray(data) ? data : [];
           const now = new Date();
+          const in15days = new Date(now.getTime() + 15 * 24 * 60 * 60 * 1000);
           const sorted = list
             .filter((e) => {
               const status = getEffectiveEditalStatus(e);
-              return status === 'ABERTO' || status === 'CONTINUO';
+              if (status !== 'ABERTO') return false;
+              if (!e.prazoSubmissaoFase1) return false;
+              const deadline = new Date(e.prazoSubmissaoFase1);
+              return deadline > now && deadline <= in15days;
             })
             .sort((a, b) => {
-              const dateA = a.prazoSubmissaoFase1 ? new Date(a.prazoSubmissaoFase1) : new Date('2099-12-31');
-              const dateB = b.prazoSubmissaoFase1 ? new Date(b.prazoSubmissaoFase1) : new Date('2099-12-31');
-              return dateA - dateB;
+              return new Date(a.prazoSubmissaoFase1) - new Date(b.prazoSubmissaoFase1);
             })
-            .slice(0, 6);
+            .slice(0, 3);
           setEditais(sorted);
         }
 
