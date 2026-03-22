@@ -13,6 +13,7 @@ import ImageGallery from '../../components/common/ImageGallery';
 import Badge from '../../components/ui/Badge';
 import { ArticleCategory, ARTICLE_CATEGORY_LABELS } from '../../constants/enums';
 import { ROUTES } from '../../constants/routes';
+import BlockEditor from '../../components/common/BlockEditor';
 import { Plus, Trash2, Eye, PenLine, Clock, User } from 'lucide-react';
 import { readingTime } from '../../utils/formatters';
 import { cn } from '../../utils/cn';
@@ -234,7 +235,7 @@ export default function ArticleFormPage() {
         <Input label="Titulo *" id="title" value={form.title} onChange={handleChange('title')} />
         <Input label="Subtitulo" id="headline" value={form.headline} onChange={handleChange('headline')} />
         <Textarea label="Resumo / Lead" id="summary" value={form.summary} onChange={handleChange('summary')} rows={3} />
-        <Textarea label="Conteudo *" id="content" value={form.content} onChange={handleChange('content')} rows={12} placeholder="Conteudo do artigo (HTML)" />
+        <BlockEditor value={form.content} onChange={(html) => setForm((f) => ({ ...f, content: html }))} />
         <Input label="Palavras-chave" id="keywords" value={form.keywords} onChange={handleChange('keywords')} placeholder="Separadas por virgula" />
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
