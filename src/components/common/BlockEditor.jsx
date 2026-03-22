@@ -5,6 +5,7 @@ import {
   Plus, Trash2, ChevronUp, ChevronDown, GripVertical,
   Type, Heading1, Heading2, Heading3, Image, Quote, List,
   ListOrdered, Code, Minus, Video, AlertCircle, Columns,
+  FileText, Mic, Camera, LayoutTemplate,
 } from 'lucide-react';
 
 const BLOCK_TYPES = [
@@ -41,6 +42,96 @@ function createBlock(type) {
     case 'two-columns': return { ...base, left: '', right: '' };
     default: return { ...base, text: '' };
   }
+}
+
+const TEMPLATES = [
+  {
+    id: 'noticia',
+    label: 'Noticia padrao',
+    icon: FileText,
+    description: 'Reportagem com introducao, desenvolvimento e conclusao',
+    blocks: [
+      { type: 'paragraph', text: '', _placeholder: 'Paragrafo de abertura: contextualize o leitor sobre o fato principal. Responda: O que aconteceu? Quando? Onde?' },
+      { type: 'heading2', text: '', _placeholder: 'Titulo da secao (ex: O que se sabe ate agora)' },
+      { type: 'paragraph', text: '', _placeholder: 'Desenvolva o assunto com mais detalhes, dados e informacoes relevantes.' },
+      { type: 'image', url: '', caption: '', credit: '', alt: '' },
+      { type: 'paragraph', text: '', _placeholder: 'Continue o desenvolvimento da materia.' },
+      { type: 'quote', text: '', author: '', _placeholder: 'Insira uma citacao de uma fonte ou entrevistado.' },
+      { type: 'heading2', text: '', _placeholder: 'Titulo da proxima secao (ex: Impactos e consequencias)' },
+      { type: 'paragraph', text: '', _placeholder: 'Explique os impactos, consequencias ou proximos passos.' },
+      { type: 'paragraph', text: '', _placeholder: 'Paragrafo de fechamento: conclua a materia com perspectivas futuras.' },
+    ],
+  },
+  {
+    id: 'entrevista',
+    label: 'Entrevista',
+    icon: Mic,
+    description: 'Formato pergunta e resposta com introducao',
+    blocks: [
+      { type: 'paragraph', text: '', _placeholder: 'Introducao: apresente o entrevistado, quem e, por que e relevante e o contexto da entrevista.' },
+      { type: 'image', url: '', caption: '', credit: '', alt: '' },
+      { type: 'divider' },
+      { type: 'paragraph', text: '', _placeholder: '<strong>Jornal O Inovador</strong> - Primeira pergunta ao entrevistado?' },
+      { type: 'paragraph', text: '', _placeholder: '<strong>Nome do entrevistado</strong> - Resposta do entrevistado.' },
+      { type: 'paragraph', text: '', _placeholder: '<strong>Jornal O Inovador</strong> - Segunda pergunta?' },
+      { type: 'paragraph', text: '', _placeholder: '<strong>Nome do entrevistado</strong> - Resposta.' },
+      { type: 'paragraph', text: '', _placeholder: '<strong>Jornal O Inovador</strong> - Terceira pergunta?' },
+      { type: 'paragraph', text: '', _placeholder: '<strong>Nome do entrevistado</strong> - Resposta.' },
+      { type: 'divider' },
+      { type: 'paragraph', text: '', _placeholder: 'Texto de fechamento da entrevista.' },
+    ],
+  },
+  {
+    id: 'reportagem',
+    label: 'Reportagem especial',
+    icon: Camera,
+    description: 'Materia longa com multiplas secoes e midias',
+    blocks: [
+      { type: 'paragraph', text: '', _placeholder: 'Lead forte: abra com o fato mais impactante ou uma cena que prenda a atencao do leitor.' },
+      { type: 'heading2', text: '', _placeholder: 'Contexto (ex: Como tudo comecou)' },
+      { type: 'paragraph', text: '', _placeholder: 'Explique o historico e o contexto do tema.' },
+      { type: 'paragraph', text: '', _placeholder: 'Aprofunde com dados, numeros e estatisticas.' },
+      { type: 'image', url: '', caption: '', credit: '', alt: '' },
+      { type: 'heading2', text: '', _placeholder: 'Desenvolvimento (ex: Os personagens envolvidos)' },
+      { type: 'paragraph', text: '', _placeholder: 'Conte a historia das pessoas envolvidas.' },
+      { type: 'quote', text: '', author: '', _placeholder: 'Depoimento de um dos personagens.' },
+      { type: 'paragraph', text: '', _placeholder: 'Continue o desenvolvimento da reportagem.' },
+      { type: 'callout', text: '', variant: 'info', _placeholder: 'Dados importantes em destaque (ex: numeros, estatisticas relevantes).' },
+      { type: 'heading2', text: '', _placeholder: 'Analise (ex: O que dizem os especialistas)' },
+      { type: 'paragraph', text: '', _placeholder: 'Traga analises de especialistas no tema.' },
+      { type: 'quote', text: '', author: '', _placeholder: 'Citacao de especialista.' },
+      { type: 'image', url: '', caption: '', credit: '', alt: '' },
+      { type: 'heading2', text: '', _placeholder: 'Conclusao (ex: O que esperar daqui pra frente)' },
+      { type: 'paragraph', text: '', _placeholder: 'Feche com perspectivas, proximos passos ou o que deve acontecer.' },
+      { type: 'list', items: [''], _placeholder: 'Pontos-chave da reportagem' },
+    ],
+  },
+  {
+    id: 'lista',
+    label: 'Listicle (Top N)',
+    icon: ListOrdered,
+    description: 'Artigo em formato de lista numerada',
+    blocks: [
+      { type: 'paragraph', text: '', _placeholder: 'Introducao: contextualize a lista e por que ela e relevante.' },
+      { type: 'heading2', text: '', _placeholder: '1. Primeiro item da lista' },
+      { type: 'paragraph', text: '', _placeholder: 'Explique o primeiro item.' },
+      { type: 'image', url: '', caption: '', credit: '', alt: '' },
+      { type: 'heading2', text: '', _placeholder: '2. Segundo item da lista' },
+      { type: 'paragraph', text: '', _placeholder: 'Explique o segundo item.' },
+      { type: 'heading2', text: '', _placeholder: '3. Terceiro item da lista' },
+      { type: 'paragraph', text: '', _placeholder: 'Explique o terceiro item.' },
+      { type: 'divider' },
+      { type: 'paragraph', text: '', _placeholder: 'Conclusao: resuma os destaques da lista.' },
+    ],
+  },
+];
+
+function instantiateTemplate(template) {
+  return template.blocks.map((b) => ({
+    ...createBlock(b.type),
+    ...b,
+    id: crypto.randomUUID(),
+  }));
 }
 
 function blockToHtml(block) {
@@ -214,7 +305,7 @@ function ParagraphBlock({ block, onChange }) {
     <textarea
       value={block.text}
       onChange={(e) => onChange({ ...block, text: e.target.value })}
-      placeholder="Escreva o texto do paragrafo..."
+      placeholder={block._placeholder || 'Escreva o texto do paragrafo...'}
       rows={3}
       className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent resize-y"
     />
@@ -227,7 +318,7 @@ function HeadingBlock({ block, onChange, level }) {
     <input
       value={block.text}
       onChange={(e) => onChange({ ...block, text: e.target.value })}
-      placeholder={`Titulo ${level === 'heading2' ? 'H2' : level === 'heading3' ? 'H3' : 'H4'}...`}
+      placeholder={block._placeholder || `Titulo ${level === 'heading2' ? 'H2' : level === 'heading3' ? 'H3' : 'H4'}...`}
       className={cn('w-full rounded-lg border border-gray-200 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent', sizes[level])}
     />
   );
@@ -273,7 +364,7 @@ function QuoteBlock({ block, onChange }) {
       <textarea
         value={block.text}
         onChange={(e) => onChange({ ...block, text: e.target.value })}
-        placeholder="Texto da citacao..."
+        placeholder={block._placeholder || 'Texto da citacao...'}
         rows={2}
         className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm italic focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent resize-y"
       />
@@ -401,7 +492,7 @@ function CalloutBlock({ block, onChange }) {
       <textarea
         value={block.text}
         onChange={(e) => onChange({ ...block, text: e.target.value })}
-        placeholder="Texto do destaque..."
+        placeholder={block._placeholder || 'Texto do destaque...'}
         rows={2}
         className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent resize-y bg-white/80"
       />
@@ -458,6 +549,7 @@ function renderBlockEditor(block, onChange) {
 export default function BlockEditor({ value, onChange }) {
   const [blocks, setBlocks] = useState(() => htmlToBlocks(value));
   const [showAddMenu, setShowAddMenu] = useState(null); // index to insert after
+  const [showTemplates, setShowTemplates] = useState(false);
   const [dragIndex, setDragIndex] = useState(null);
 
   const syncHtml = useCallback((newBlocks) => {
@@ -512,6 +604,14 @@ export default function BlockEditor({ value, onChange }) {
     addBlock(type, blocks.length - 1);
   };
 
+  const applyTemplate = (template) => {
+    const newBlocks = instantiateTemplate(template);
+    syncHtml(newBlocks);
+    setShowTemplates(false);
+  };
+
+  const isEmpty = blocks.length === 1 && !blocks[0].text && !blocks[0].url;
+
   return (
     <div className="space-y-1">
       <div className="flex items-center justify-between mb-2">
@@ -519,9 +619,81 @@ export default function BlockEditor({ value, onChange }) {
         <span className="text-xs text-gray-400">{blocks.length} bloco{blocks.length !== 1 ? 's' : ''}</span>
       </div>
 
+      {/* Template selector - show when empty */}
+      {isEmpty && (
+        <div className="bg-gradient-to-br from-primary-50 to-accent-50 rounded-xl border border-primary-100 p-5 mb-3">
+          <div className="flex items-center gap-2 mb-3">
+            <LayoutTemplate className="h-5 w-5 text-primary-500" />
+            <h3 className="text-sm font-semibold text-gray-800">Comece com um modelo</h3>
+          </div>
+          <p className="text-xs text-gray-500 mb-4">Escolha um modelo pre-montado ou comece do zero adicionando blocos.</p>
+          <div className="grid grid-cols-2 gap-3">
+            {TEMPLATES.map((tpl) => {
+              const TIcon = tpl.icon;
+              return (
+                <button
+                  key={tpl.id}
+                  type="button"
+                  onClick={() => applyTemplate(tpl)}
+                  className="flex items-start gap-3 p-3 bg-white rounded-xl border border-gray-200 hover:border-primary-300 hover:shadow-md transition-all text-left group"
+                >
+                  <div className="w-9 h-9 rounded-lg bg-primary-100 text-primary-600 flex items-center justify-center shrink-0 group-hover:bg-primary-500 group-hover:text-white transition-colors">
+                    <TIcon className="h-4.5 w-4.5" />
+                  </div>
+                  <div>
+                    <span className="text-sm font-semibold text-gray-800 group-hover:text-primary-600 transition-colors">{tpl.label}</span>
+                    <p className="text-[11px] text-gray-400 mt-0.5 leading-snug">{tpl.description}</p>
+                    <p className="text-[10px] text-gray-300 mt-1">{tpl.blocks.length} blocos</p>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
       {/* Toolbar - always visible */}
       <div className="bg-gray-50 rounded-xl border border-gray-200 p-3 mb-3">
-        <p className="text-xs font-medium text-gray-500 mb-2">Adicionar bloco:</p>
+        <div className="flex items-center justify-between mb-2">
+          <p className="text-xs font-medium text-gray-500">Adicionar bloco:</p>
+          {!isEmpty && (
+            <button
+              type="button"
+              onClick={() => setShowTemplates(!showTemplates)}
+              className={cn(
+                'flex items-center gap-1 text-xs font-medium px-2 py-1 rounded-lg transition-colors',
+                showTemplates ? 'bg-primary-100 text-primary-600' : 'text-gray-400 hover:text-primary-500'
+              )}
+            >
+              <LayoutTemplate className="h-3 w-3" /> Modelos
+            </button>
+          )}
+        </div>
+
+        {/* Inline template picker */}
+        {showTemplates && !isEmpty && (
+          <div className="grid grid-cols-2 gap-2 mb-3 pb-3 border-b border-gray-200">
+            {TEMPLATES.map((tpl) => {
+              const TIcon = tpl.icon;
+              return (
+                <button
+                  key={tpl.id}
+                  type="button"
+                  onClick={() => {
+                    if (confirm('Isso substituira o conteudo atual. Continuar?')) {
+                      applyTemplate(tpl);
+                    }
+                  }}
+                  className="flex items-center gap-2 px-3 py-2 text-xs text-gray-600 bg-white rounded-lg border border-gray-200 hover:bg-primary-50 hover:text-primary-600 hover:border-primary-200 transition-colors"
+                >
+                  <TIcon className="h-3.5 w-3.5" />
+                  {tpl.label}
+                </button>
+              );
+            })}
+          </div>
+        )}
+
         <div className="flex flex-wrap gap-1.5">
           {BLOCK_TYPES.map((bt) => {
             const BIcon = bt.icon;
