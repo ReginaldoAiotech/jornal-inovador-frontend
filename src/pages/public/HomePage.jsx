@@ -4,21 +4,20 @@ import { useDocumentTitle } from '../../hooks/useDocumentTitle';
 import { useAuth } from '../../hooks/useAuth';
 import { getArticles, getTrendingArticles } from '../../services/articleService';
 import { getEditaisFomento, getEditaisFomentoStats } from '../../services/editalFomentoService';
+import { getEffectiveEditalStatus } from '../../utils/formatters';
 import HeroSection from '../../components/common/HeroSection';
 import NewsTicker from '../../components/common/NewsTicker';
 import SectionTitle from '../../components/common/SectionTitle';
 import ArticleCard from '../../components/common/ArticleCard';
+import EditalFomentoCard from '../../components/common/EditalFomentoCard';
 import CategorySection from '../../components/common/CategorySection';
 import StatsSection from '../../components/common/StatsSection';
 import NewsletterSection from '../../components/common/NewsletterSection';
 import CategoryBadge from '../../components/common/CategoryBadge';
-import DateDisplay from '../../components/common/DateDisplay';
-import Badge from '../../components/ui/Badge';
 import Spinner from '../../components/ui/Spinner';
 import { ROUTES } from '../../constants/routes';
-import { readingTime, daysUntil } from '../../utils/formatters';
 import {
-  Eye, Clock, TrendingUp, Calendar, ArrowRight, Lock,
+  Eye, TrendingUp, Calendar, ArrowRight, Lock,
 } from 'lucide-react';
 
 export default function HomePage() {
@@ -59,15 +58,15 @@ export default function HomePage() {
           const now = new Date();
           const sorted = list
             .filter((e) => {
-              if (!e.data_submissao) return true;
-              return new Date(e.data_submissao) > now;
+              const status = getEffectiveEditalStatus(e);
+              return status === 'ABERTO' || status === 'CONTINUO';
             })
             .sort((a, b) => {
-              const dateA = a.data_submissao ? new Date(a.data_submissao) : new Date('2099-12-31');
-              const dateB = b.data_submissao ? new Date(b.data_submissao) : new Date('2099-12-31');
+              const dateA = a.prazoSubmissaoFase1 ? new Date(a.prazoSubmissaoFase1) : new Date('2099-12-31');
+              const dateB = b.prazoSubmissaoFase1 ? new Date(b.prazoSubmissaoFase1) : new Date('2099-12-31');
               return dateA - dateB;
             })
-            .slice(0, 4);
+            .slice(0, 6);
           setEditais(sorted);
         }
 
@@ -159,84 +158,59 @@ export default function HomePage() {
         </section>
       )}
 
-      {/* === Editais proximos a vencer - preview publico === */}
+      {/* === Editais proximos a vencer === */}
       {editais.length > 0 && (
-        <section className="bg-gradient-to-br from-gray-900 to-gray-800 py-12">
+        <section className="bg-gray-50 py-12">
           <div className="max-w-7xl mx-auto px-4 sm:px-6">
             <div className="flex items-center justify-between mb-8">
               <div className="flex items-center gap-2">
-                <Calendar className="h-6 w-6 text-accent-400" />
-                <h2 className="text-2xl font-bold font-heading text-white">Editais proximos a vencer</h2>
+                <Calendar className="h-6 w-6 text-accent-500" />
+                <h2 className="text-2xl font-bold font-heading text-gray-900">Editais proximos a vencer</h2>
               </div>
               {isAuthenticated ? (
                 <Link
                   to={ROUTES.EDITAIS_FOMENTO}
-                  className="flex items-center gap-1 text-sm text-accent-400 hover:text-accent-300 transition-colors"
+                  className="flex items-center gap-1 text-sm text-primary-500 hover:text-primary-600 font-medium transition-colors"
                 >
-                  Ver todos <ArrowRight className="h-4 w-4" />
+                  Ver todos os editais <ArrowRight className="h-4 w-4" />
                 </Link>
               ) : (
                 <Link
-                  to={ROUTES.LOGIN}
-                  className="flex items-center gap-1.5 text-sm text-gray-400 hover:text-accent-400 transition-colors"
+                  to={ROUTES.REGISTER}
+                  className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-primary-500 transition-colors"
                 >
-                  <Lock className="h-3.5 w-3.5" /> Faca login para acessar
+                  <Lock className="h-3.5 w-3.5" /> Cadastre-se para ver todos
                 </Link>
               )}
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              {editais.map((edital) => {
-                const days = daysUntil(edital.data_submissao);
-                const isClosingSoon = days !== null && days > 0 && days <= 7;
-
-                return (
-                  <div
-                    key={edital.id}
-                    className="bg-white/5 backdrop-blur-sm rounded-xl p-5 border border-white/10 hover:bg-white/10 transition-all"
-                  >
-                    <div className="flex items-start justify-between gap-2 mb-3">
-                      <Badge variant="accent">{edital.sigla_fap || 'FAP'}</Badge>
-                      {days !== null && days > 0 ? (
-                        <Badge variant={isClosingSoon ? 'danger' : 'success'}>
-                          {isClosingSoon ? `${days}d restantes` : `${days}d`}
-                        </Badge>
-                      ) : (
-                        <Badge variant="default">Fluxo continuo</Badge>
-                      )}
-                    </div>
-                    <h3 className="text-sm font-semibold text-white line-clamp-2 mb-2">
-                      {edital.titulo}
-                    </h3>
-                    <p className="text-xs text-gray-400 mb-3 line-clamp-1">
-                      {edital.instituicao}
-                    </p>
-                    {edital.data_submissao && (
-                      <div className="flex items-center gap-1.5 text-xs text-gray-500">
-                        <Calendar className="h-3 w-3" />
-                        <span>Encerra: <DateDisplay date={edital.data_submissao} /></span>
-                      </div>
-                    )}
-                    {!isAuthenticated && (
-                      <Link
-                        to={ROUTES.REGISTER}
-                        className="mt-3 block text-center text-xs text-accent-400 hover:text-accent-300 border border-accent-400/30 rounded-lg py-1.5 transition-colors"
-                      >
-                        Cadastre-se para ver detalhes
-                      </Link>
-                    )}
-                    {isAuthenticated && (
-                      <Link
-                        to={`/editais-fomento/${edital.id}`}
-                        className="mt-3 block text-center text-xs text-accent-400 hover:text-accent-300 border border-accent-400/30 rounded-lg py-1.5 transition-colors"
-                      >
-                        Ver edital completo
-                      </Link>
-                    )}
-                  </div>
-                );
-              })}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+              {editais.map((edital) => (
+                <EditalFomentoCard key={edital.id} edital={edital} />
+              ))}
             </div>
+
+            {!isAuthenticated && (
+              <div className="mt-8 text-center bg-white rounded-xl border border-gray-200 p-6">
+                <p className="text-gray-600 mb-3">
+                  Cadastre-se gratuitamente para acessar todos os editais, classificados e cursos.
+                </p>
+                <div className="flex items-center justify-center gap-3">
+                  <Link
+                    to={ROUTES.REGISTER}
+                    className="inline-flex items-center gap-2 bg-primary-500 text-white px-6 py-2.5 rounded-lg font-medium hover:bg-primary-600 transition-colors text-sm"
+                  >
+                    Criar conta gratuita
+                  </Link>
+                  <Link
+                    to={ROUTES.LOGIN}
+                    className="inline-flex items-center gap-2 text-gray-600 px-6 py-2.5 rounded-lg font-medium hover:bg-gray-100 transition-colors text-sm border border-gray-300"
+                  >
+                    Ja tenho conta
+                  </Link>
+                </div>
+              </div>
+            )}
           </div>
         </section>
       )}
