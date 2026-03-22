@@ -56,10 +56,10 @@ export default function Header() {
 
   const navLinks = [
     { label: 'Noticias', path: ROUTES.ARTICLES },
-    { label: 'Classificados', path: ROUTES.CLASSIFIEDS },
     ...(isAuthenticated
       ? [
           { label: 'Editais', path: ROUTES.EDITAIS_FOMENTO },
+          { label: 'Classificados', path: ROUTES.CLASSIFIEDS },
           { label: 'Cursos', path: ROUTES.COURSES },
         ]
       : []),

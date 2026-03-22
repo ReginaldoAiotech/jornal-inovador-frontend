@@ -52,23 +52,29 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Paginas publicas */}
+        {/* Paginas publicas - Jornal aberto */}
         <Route element={<PublicLayout />}>
           <Route index element={<HomePage />} />
           <Route path="artigos" element={<ArticleListPage />} />
           <Route path="artigos/:id" element={<ArticleDetailPage />} />
-          <Route path="editais" element={<EditalListPage />} />
-          <Route path="editais/:id" element={<EditalDetailPage />} />
-          <Route path="editais-fomento" element={<EditalFomentoListPage />} />
-          <Route path="editais-fomento/:id" element={<EditalFomentoDetailPage />} />
-          <Route path="cursos" element={<CourseListPage />} />
-          <Route path="cursos/:id" element={<CourseDetailPage />} />
-          <Route path="cursos/:courseId/aulas/:lessonId" element={<LessonPage />} />
           <Route path="autor/:authorId" element={<AuthorPage />} />
-          <Route path="classificados" element={<ClassifiedListPage />} />
-          <Route path="classificados/:id" element={<ClassifiedDetailPage />} />
           <Route path="entrar" element={<LoginPage />} />
           <Route path="cadastro" element={<RegisterPage />} />
+        </Route>
+
+        {/* Paginas que exigem cadastro */}
+        <Route element={<ProtectedRoute />}>
+          <Route element={<PublicLayout />}>
+            <Route path="editais" element={<EditalListPage />} />
+            <Route path="editais/:id" element={<EditalDetailPage />} />
+            <Route path="editais-fomento" element={<EditalFomentoListPage />} />
+            <Route path="editais-fomento/:id" element={<EditalFomentoDetailPage />} />
+            <Route path="classificados" element={<ClassifiedListPage />} />
+            <Route path="classificados/:id" element={<ClassifiedDetailPage />} />
+            <Route path="cursos" element={<CourseListPage />} />
+            <Route path="cursos/:id" element={<CourseDetailPage />} />
+            <Route path="cursos/:courseId/aulas/:lessonId" element={<LessonPage />} />
+          </Route>
         </Route>
 
         {/* Paginas autenticadas - Dashboard do usuario */}

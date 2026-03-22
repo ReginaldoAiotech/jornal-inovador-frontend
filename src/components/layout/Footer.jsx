@@ -22,8 +22,9 @@ export default function Footer() {
             <h4 className="text-sm font-semibold uppercase tracking-wider mb-3">Navegacao</h4>
             <ul className="space-y-2 text-sm text-primary-200">
               <li><Link to={ROUTES.ARTICLES} className="hover:text-white transition-colors">Noticias</Link></li>
-              <li><Link to={ROUTES.EDITAIS_FOMENTO} className="hover:text-white transition-colors">Editais</Link></li>
-              <li><Link to={ROUTES.CLASSIFIEDS} className="hover:text-white transition-colors">Classificados</Link></li>
+              <li><Link to={ROUTES.LOGIN} className="hover:text-white transition-colors">Editais (login)</Link></li>
+              <li><Link to={ROUTES.LOGIN} className="hover:text-white transition-colors">Classificados (login)</Link></li>
+              <li><Link to={ROUTES.REGISTER} className="hover:text-white transition-colors">Cadastre-se</Link></li>
               <li>
                 <a href={`${import.meta.env.VITE_API_URL || ''}/articles/feed/rss`} target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors inline-flex items-center gap-1">
                   <Rss className="h-3 w-3" /> RSS Feed
