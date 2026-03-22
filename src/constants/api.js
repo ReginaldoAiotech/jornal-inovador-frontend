@@ -47,6 +47,8 @@ export const API = Object.freeze({
   USERS: {
     BASE: '/users',
     BY_ID: (id) => `/users/${id}`,
+    APPROVE: (id) => `/users/${id}/approve`,
+    REJECT: (id) => `/users/${id}/reject`,
   },
   COURSES: {
     BASE: '/courses',

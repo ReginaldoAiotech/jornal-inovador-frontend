@@ -1,14 +1,15 @@
 import { useState, useEffect } from 'react';
 import { useDocumentTitle } from '../../hooks/useDocumentTitle';
-import { getUsers, updateUser, deleteUser } from '../../services/userService';
+import { getUsers, updateUser, deleteUser, approveUser, rejectUser } from '../../services/userService';
 import DataTable from '../../components/common/DataTable';
 import ConfirmDialog from '../../components/common/ConfirmDialog';
 import Badge from '../../components/ui/Badge';
 import Modal from '../../components/ui/Modal';
 import Select from '../../components/ui/Select';
 import Button from '../../components/ui/Button';
-import { Pencil, Trash2 } from 'lucide-react';
+import { Pencil, Trash2, CheckCircle, XCircle, Clock, UserCheck } from 'lucide-react';
 import { formatDate } from '../../utils/formatters';
+import { cn } from '../../utils/cn';
 import toast from 'react-hot-toast';
 
 const ROLE_LABELS = { USER: 'Usuario', EDITOR: 'Editor', ADMIN: 'Admin' };
@@ -24,8 +25,10 @@ export default function ManageUsersPage() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [deleteId, setDeleteId] = useState(null);
+  const [rejectId, setRejectId] = useState(null);
   const [editUser, setEditUser] = useState(null);
   const [editRole, setEditRole] = useState('');
+  const [tab, setTab] = useState('all'); // 'all' | 'pending' | 'approved'
 
   const fetchData = () => {
     setLoading(true);
@@ -39,6 +42,31 @@ export default function ManageUsersPage() {
   };
 
   useEffect(() => { fetchData(); }, []);
+
+  const pendingUsers = users.filter((u) => !u.isApproved && u.role !== 'ADMIN');
+  const approvedUsers = users.filter((u) => u.isApproved || u.role === 'ADMIN');
+  const displayUsers = tab === 'pending' ? pendingUsers : tab === 'approved' ? approvedUsers : users;
+
+  const handleApprove = async (id) => {
+    try {
+      await approveUser(id);
+      toast.success('Usuario aprovado!');
+      fetchData();
+    } catch {
+      toast.error('Erro ao aprovar');
+    }
+  };
+
+  const handleReject = async () => {
+    try {
+      await rejectUser(rejectId);
+      toast.success('Usuario rejeitado e removido.');
+      setRejectId(null);
+      fetchData();
+    } catch {
+      toast.error('Erro ao rejeitar');
+    }
+  };
 
   const handleDelete = async () => {
     try {
@@ -63,19 +91,59 @@ export default function ManageUsersPage() {
   };
 
   const columns = [
-    { key: 'name', label: 'Nome', render: (row) => <span className="font-medium">{row.name}</span> },
+    {
+      key: 'name',
+      label: 'Nome',
+      render: (row) => (
+        <div>
+          <span className="font-medium">{row.name}</span>
+          {!row.isApproved && row.role !== 'ADMIN' && (
+            <span className="ml-2 inline-flex items-center gap-1 px-1.5 py-0.5 text-[10px] font-medium bg-yellow-50 text-yellow-600 rounded-full">
+              <Clock className="h-2.5 w-2.5" /> Pendente
+            </span>
+          )}
+        </div>
+      ),
+    },
     { key: 'email', label: 'E-mail' },
     { key: 'role', label: 'Funcao', render: (row) => <Badge variant={ROLE_VARIANTS[row.role]}>{ROLE_LABELS[row.role]}</Badge> },
+    {
+      key: 'status',
+      label: 'Status',
+      render: (row) => row.isApproved || row.role === 'ADMIN' ? (
+        <span className="inline-flex items-center gap-1 text-xs text-green-600"><CheckCircle className="h-3.5 w-3.5" /> Aprovado</span>
+      ) : (
+        <span className="inline-flex items-center gap-1 text-xs text-yellow-600"><Clock className="h-3.5 w-3.5" /> Pendente</span>
+      ),
+    },
     { key: 'createdAt', label: 'Cadastro', render: (row) => formatDate(row.createdAt) },
     {
       key: 'actions',
       label: 'Acoes',
       render: (row) => (
-        <div className="flex items-center gap-2">
-          <button onClick={() => { setEditUser(row); setEditRole(row.role); }} className="p-1.5 rounded hover:bg-gray-100 text-gray-500">
+        <div className="flex items-center gap-1">
+          {!row.isApproved && row.role !== 'ADMIN' && (
+            <>
+              <button
+                onClick={() => handleApprove(row.id)}
+                className="p-1.5 rounded hover:bg-green-50 text-green-600"
+                title="Aprovar"
+              >
+                <CheckCircle className="h-4 w-4" />
+              </button>
+              <button
+                onClick={() => setRejectId(row.id)}
+                className="p-1.5 rounded hover:bg-red-50 text-red-500"
+                title="Rejeitar"
+              >
+                <XCircle className="h-4 w-4" />
+              </button>
+            </>
+          )}
+          <button onClick={() => { setEditUser(row); setEditRole(row.role); }} className="p-1.5 rounded hover:bg-gray-100 text-gray-500" title="Editar funcao">
             <Pencil className="h-4 w-4" />
           </button>
-          <button onClick={() => setDeleteId(row.id)} className="p-1.5 rounded hover:bg-red-50 text-red-500">
+          <button onClick={() => setDeleteId(row.id)} className="p-1.5 rounded hover:bg-red-50 text-red-500" title="Excluir">
             <Trash2 className="h-4 w-4" />
           </button>
         </div>
@@ -85,8 +153,39 @@ export default function ManageUsersPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold font-heading text-gray-900 mb-6">Usuarios</h1>
-      <DataTable columns={columns} data={users} isLoading={loading} />
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-2xl font-bold font-heading text-gray-900">Usuarios</h1>
+        {pendingUsers.length > 0 && (
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 text-sm font-medium bg-yellow-50 text-yellow-700 rounded-full border border-yellow-200">
+            <UserCheck className="h-4 w-4" />
+            {pendingUsers.length} pendente{pendingUsers.length !== 1 ? 's' : ''}
+          </span>
+        )}
+      </div>
+
+      {/* Tabs */}
+      <div className="flex gap-2 mb-4">
+        {[
+          { key: 'all', label: `Todos (${users.length})` },
+          { key: 'pending', label: `Pendentes (${pendingUsers.length})` },
+          { key: 'approved', label: `Aprovados (${approvedUsers.length})` },
+        ].map((t) => (
+          <button
+            key={t.key}
+            onClick={() => setTab(t.key)}
+            className={cn(
+              'px-4 py-1.5 rounded-full text-sm font-medium transition-colors border',
+              tab === t.key
+                ? 'bg-primary-500 text-white border-primary-500'
+                : 'bg-white text-gray-600 border-gray-200 hover:border-gray-400'
+            )}
+          >
+            {t.label}
+          </button>
+        ))}
+      </div>
+
+      <DataTable columns={columns} data={displayUsers} isLoading={loading} />
 
       <ConfirmDialog
         isOpen={!!deleteId}
@@ -94,6 +193,14 @@ export default function ManageUsersPage() {
         onCancel={() => setDeleteId(null)}
         title="Excluir usuario"
         message="Tem certeza que deseja excluir este usuario? Esta acao nao pode ser desfeita."
+      />
+
+      <ConfirmDialog
+        isOpen={!!rejectId}
+        onConfirm={handleReject}
+        onCancel={() => setRejectId(null)}
+        title="Rejeitar cadastro"
+        message="O usuario sera removido do sistema. Deseja continuar?"
       />
 
       <Modal isOpen={!!editUser} onClose={() => setEditUser(null)} title={`Editar funcao - ${editUser?.name}`}>

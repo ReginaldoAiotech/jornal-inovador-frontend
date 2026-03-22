@@ -24,3 +24,12 @@ export async function updateUser(id, userData) {
 export async function deleteUser(id) {
   await api.delete(API.USERS.BY_ID(id));
 }
+
+export async function approveUser(id) {
+  const { data } = await api.patch(API.USERS.APPROVE(id));
+  return data;
+}
+
+export async function rejectUser(id) {
+  await api.patch(API.USERS.REJECT(id));
+}
