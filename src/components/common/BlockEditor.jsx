@@ -514,11 +514,37 @@ export default function BlockEditor({ value, onChange }) {
 
   const blockMeta = (type) => BLOCK_TYPES.find((b) => b.type === type) || BLOCK_TYPES[0];
 
+  const addBlockAtEnd = (type) => {
+    addBlock(type, blocks.length - 1);
+  };
+
   return (
     <div className="space-y-1">
       <div className="flex items-center justify-between mb-2">
         <label className="block text-sm font-medium text-gray-700">Conteudo *</label>
         <span className="text-xs text-gray-400">{blocks.length} bloco{blocks.length !== 1 ? 's' : ''}</span>
+      </div>
+
+      {/* Toolbar - always visible */}
+      <div className="bg-gray-50 rounded-xl border border-gray-200 p-3 mb-3">
+        <p className="text-xs font-medium text-gray-500 mb-2">Adicionar bloco:</p>
+        <div className="flex flex-wrap gap-1.5">
+          {BLOCK_TYPES.map((bt) => {
+            const BIcon = bt.icon;
+            return (
+              <button
+                key={bt.type}
+                type="button"
+                onClick={() => addBlockAtEnd(bt.type)}
+                title={bt.description}
+                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-600 bg-white rounded-lg border border-gray-200 hover:bg-primary-50 hover:text-primary-600 hover:border-primary-200 transition-colors shadow-sm"
+              >
+                <BIcon className="h-3.5 w-3.5" />
+                {bt.label}
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       {blocks.map((block, index) => {
@@ -544,7 +570,7 @@ export default function BlockEditor({ value, onChange }) {
                 <Icon className="h-3.5 w-3.5 text-gray-400" />
                 <span className="text-xs text-gray-400 font-medium">{meta.label}</span>
 
-                <div className="ml-auto flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                <div className="ml-auto flex items-center gap-0.5">
                   <button
                     type="button"
                     onClick={() => moveBlock(index, -1)}
@@ -586,20 +612,20 @@ export default function BlockEditor({ value, onChange }) {
                 type="button"
                 onClick={() => setShowAddMenu(showAddMenu === index ? null : index)}
                 className={cn(
-                  'flex items-center gap-1 px-3 py-1 text-xs rounded-full border transition-all',
+                  'flex items-center gap-1 px-3 py-1.5 text-xs rounded-full border transition-all',
                   showAddMenu === index
-                    ? 'bg-primary-50 text-primary-600 border-primary-200'
-                    : 'text-gray-400 border-transparent hover:text-gray-500 hover:border-gray-200 hover:bg-gray-50'
+                    ? 'bg-primary-50 text-primary-600 border-primary-200 shadow-sm'
+                    : 'text-gray-400 border-gray-200 bg-white hover:text-primary-500 hover:border-primary-200 hover:bg-primary-50'
                 )}
               >
-                <Plus className="h-3 w-3" />
-                <span className="hidden group-hover:inline">Adicionar bloco</span>
+                <Plus className="h-3.5 w-3.5" />
+                Inserir bloco aqui
               </button>
 
               {/* Add menu */}
               {showAddMenu === index && (
-                <div className="absolute top-full left-1/2 -translate-x-1/2 z-20 bg-white rounded-xl shadow-xl border border-gray-200 p-3 w-80">
-                  <p className="text-xs font-medium text-gray-500 mb-2 px-1">Adicionar bloco</p>
+                <div className="absolute top-full left-1/2 -translate-x-1/2 z-20 bg-white rounded-xl shadow-xl border border-gray-200 p-3 w-80 mt-1">
+                  <p className="text-xs font-medium text-gray-500 mb-2 px-1">Escolha o tipo de bloco:</p>
                   <div className="grid grid-cols-2 gap-1.5">
                     {BLOCK_TYPES.map((bt) => {
                       const BIcon = bt.icon;
@@ -608,11 +634,12 @@ export default function BlockEditor({ value, onChange }) {
                           key={bt.type}
                           type="button"
                           onClick={() => addBlock(bt.type, index)}
-                          className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 rounded-lg hover:bg-primary-50 hover:text-primary-600 transition-colors text-left"
+                          className="flex items-center gap-2 px-3 py-2 text-gray-700 rounded-lg hover:bg-primary-50 hover:text-primary-600 transition-colors text-left"
                         >
                           <BIcon className="h-4 w-4 shrink-0" />
                           <div>
                             <span className="font-medium text-xs">{bt.label}</span>
+                            <p className="text-[10px] text-gray-400">{bt.description}</p>
                           </div>
                         </button>
                       );
