@@ -21,6 +21,11 @@ export async function getEditaisFomentoStats() {
   return data;
 }
 
+export async function getEditaisFomentoDashboard() {
+  const { data } = await editalFomentoApi.get(API.EDITAIS_FOMENTO.DASHBOARD);
+  return data;
+}
+
 export async function updateEditalFomento(id, editalData) {
   const { data } = await editalFomentoApi.put(API.EDITAIS_FOMENTO.BY_ID(id), editalData);
   return data;

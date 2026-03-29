@@ -40,6 +40,11 @@ export const API = Object.freeze({
     FAVORITES: '/editais-fomento/favorites',
     ESTADOS: '/editais-fomento/estados',
     STATS: '/editais-fomento/stats',
+    DASHBOARD: '/editais-fomento/dashboard',
+  },
+  PROJETOS_FOMENTO: {
+    BASE: '/projetos-fomento',
+    BY_ID: (id) => `/projetos-fomento/${id}`,
   },
   NEWSLETTER: {
     SUBSCRIBE: '/newsletter/subscribe',

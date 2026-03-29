@@ -61,7 +61,7 @@ export default function StatsSection({ stats }) {
   ];
 
   return (
-    <section className="py-16 bg-white">
+    <section className="py-12 bg-accent-50/40 border-y border-accent-100/50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
           {items.map((item) => (

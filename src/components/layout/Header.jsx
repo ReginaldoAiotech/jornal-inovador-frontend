@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Menu, X, User, LogOut, LayoutDashboard, Shield, Newspaper, Search } from 'lucide-react';
+import { Menu, X, User, LogOut, LayoutDashboard, Shield, Search, Newspaper, ShoppingBag } from 'lucide-react';
+import logoSvg from '../../assets/logo.svg';
 import { useAuth } from '../../hooks/useAuth';
 import { ROUTES } from '../../constants/routes';
 import Button from '../ui/Button';
@@ -54,12 +55,17 @@ export default function Header() {
     setSearchOpen(false);
   }, [location.pathname]);
 
-  const navLinks = [
-    { label: 'Noticias', path: ROUTES.ARTICLES },
-    { label: 'Classificados', path: ROUTES.CLASSIFIEDS },
-    { label: 'Editais', path: isAuthenticated ? ROUTES.EDITAIS_FOMENTO : ROUTES.LOGIN },
-    { label: 'Cursos', path: isAuthenticated ? ROUTES.COURSES : ROUTES.LOGIN },
-  ];
+  const navLinks = isAuthenticated
+    ? [
+        { label: 'Imprensa', path: ROUTES.ARTICLES },
+        { label: 'Vitrine', path: ROUTES.CLASSIFIEDS },
+        { label: 'Fomento', path: ROUTES.EDITAIS_FOMENTO_DASHBOARD },
+        { label: 'Cursos', path: ROUTES.COURSES },
+      ]
+    : [
+        { label: 'Noticias', path: ROUTES.ARTICLES, icon: Newspaper },
+        { label: 'Classificados', path: ROUTES.CLASSIFIEDS, icon: ShoppingBag },
+      ];
 
   const isActive = (path) => location.pathname === path || location.pathname.startsWith(path + '/');
 
@@ -68,33 +74,24 @@ export default function Header() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link to={ROUTES.HOME} className="flex items-center gap-2.5 group shrink-0">
-            <div className="w-9 h-9 bg-primary-500 rounded-lg flex items-center justify-center group-hover:bg-primary-600 transition-colors">
-              <Newspaper className="h-5 w-5 text-white" />
-            </div>
-            <div className="flex flex-col">
-              <span className="text-base font-bold font-heading text-primary-500 leading-tight">
-                O Inovador
-              </span>
-              <span className="text-[10px] text-gray-400 leading-tight tracking-wider uppercase hidden sm:block">
-                Jornal
-              </span>
-            </div>
+          <Link to={ROUTES.HOME} className="shrink-0">
+            <img src={logoSvg} alt="Jornal O Inovador" className="h-12" />
           </Link>
 
           {/* Nav desktop */}
-          <nav className="hidden lg:flex items-center gap-1">
+          <nav className="hidden md:flex items-center gap-1">
             {navLinks.map((link) => (
               <Link
                 key={link.path}
                 to={link.path}
                 className={cn(
-                  'px-3 py-2 rounded-lg text-sm font-medium transition-colors',
+                  'flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors',
                   isActive(link.path)
                     ? 'bg-primary-50 text-primary-600'
                     : 'text-gray-600 hover:text-primary-500 hover:bg-gray-50'
                 )}
               >
+                {link.icon && <link.icon className="h-4 w-4" />}
                 {link.label}
               </Link>
             ))}

@@ -19,7 +19,10 @@ import LessonPage from './pages/public/LessonPage';
 import LoginPage from './pages/public/LoginPage';
 import RegisterPage from './pages/public/RegisterPage';
 import EditalFomentoListPage from './pages/public/EditalFomentoListPage';
+import EditalFomentoEncerradosPage from './pages/public/EditalFomentoEncerradosPage';
 import EditalFomentoDetailPage from './pages/public/EditalFomentoDetailPage';
+import FomentoDashboardPage from './pages/public/FomentoDashboardPage';
+import FomentoProjetosPage from './pages/public/FomentoProjetosPage';
 import AuthorPage from './pages/public/AuthorPage';
 import NotFoundPage from './pages/public/NotFoundPage';
 
@@ -36,6 +39,7 @@ import ManageArticlesPage from './pages/admin/ManageArticlesPage';
 import ArticleFormPage from './pages/admin/ArticleFormPage';
 import ModerateClassifiedsPage from './pages/admin/ModerateClassifiedsPage';
 import ManageEditaisFomentoPage from './pages/admin/ManageEditaisFomentoPage';
+import ManageProjetosPage from './pages/admin/ManageProjetosPage';
 import EditalFomentoFormPage from './pages/admin/EditalFomentoFormPage';
 import ManageCoursesPage from './pages/admin/ManageCoursesPage';
 import CourseFormPage from './pages/admin/CourseFormPage';
@@ -52,7 +56,7 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Paginas publicas - Jornal e classificados abertos */}
+        {/* Paginas publicas - sem sidebar */}
         <Route element={<PublicLayout />}>
           <Route index element={<HomePage />} />
           <Route path="artigos" element={<ArticleListPage />} />
@@ -64,12 +68,15 @@ export default function App() {
           <Route path="cadastro" element={<RegisterPage />} />
         </Route>
 
-        {/* Paginas que exigem cadastro */}
+        {/* Paginas protegidas - com sidebar */}
         <Route element={<ProtectedRoute />}>
           <Route element={<PublicLayout />}>
             <Route path="editais" element={<EditalListPage />} />
             <Route path="editais/:id" element={<EditalDetailPage />} />
             <Route path="editais-fomento" element={<EditalFomentoListPage />} />
+            <Route path="editais-fomento/encerrados" element={<EditalFomentoEncerradosPage />} />
+            <Route path="editais-fomento/projetos" element={<FomentoProjetosPage />} />
+            <Route path="editais-fomento/dashboard" element={<FomentoDashboardPage />} />
             <Route path="editais-fomento/:id" element={<EditalFomentoDetailPage />} />
             <Route path="cursos" element={<CourseListPage />} />
             <Route path="cursos/:id" element={<CourseDetailPage />} />
@@ -103,6 +110,7 @@ export default function App() {
             {/* Somente admin */}
             <Route element={<RoleRoute roles={['ADMIN']} />}>
               <Route path="admin/editais-fomento" element={<ManageEditaisFomentoPage />} />
+              <Route path="admin/projetos-fomento" element={<ManageProjetosPage />} />
               <Route path="admin/editais-fomento/:id/editar" element={<EditalFomentoFormPage />} />
               <Route path="admin/cursos" element={<ManageCoursesPage />} />
               <Route path="admin/cursos/novo" element={<CourseFormPage />} />

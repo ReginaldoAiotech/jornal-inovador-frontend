@@ -34,7 +34,9 @@ export default function LoginPage() {
       toast.success('Login realizado com sucesso!');
       navigate(from, { replace: true });
     } catch (err) {
-      setError(err.message || 'Credenciais invalidas');
+      const msg = 'E-mail ou senha incorretos. Tente novamente.';
+      setError(msg);
+      toast.error(msg);
     } finally {
       setLoading(false);
     }

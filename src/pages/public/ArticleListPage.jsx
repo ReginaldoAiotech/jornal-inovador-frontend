@@ -47,6 +47,19 @@ export default function ArticleListPage() {
   const featuredArticle = articles[0];
   const otherArticles = articles.slice(1);
 
+  const [availableCategories, setAvailableCategories] = useState(new Set());
+
+  useEffect(() => {
+    getArticles({ published: true, limit: 200 })
+      .then((res) => {
+        const data = res?.data || res || [];
+        const cats = new Set();
+        (Array.isArray(data) ? data : []).forEach((a) => { if (a.category) cats.add(a.category); });
+        setAvailableCategories(cats);
+      })
+      .catch(() => {});
+  }, []);
+
   const hasActiveFilters = dateFrom || dateTo || sortBy !== 'createdAt' || sortOrder !== 'desc';
 
   const clearFilters = () => {
@@ -162,7 +175,7 @@ export default function ArticleListPage() {
         >
           Todas
         </button>
-        {Object.keys(ArticleCategory).map((cat) => (
+        {Object.keys(ArticleCategory).filter((cat) => availableCategories.has(cat)).map((cat) => (
           <button
             key={cat}
             onClick={() => setSelectedCategory(cat)}

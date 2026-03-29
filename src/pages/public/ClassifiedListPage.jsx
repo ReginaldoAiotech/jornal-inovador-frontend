@@ -18,8 +18,20 @@ export default function ClassifiedListPage() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState('ALL');
+  const [availableCategories, setAvailableCategories] = useState(new Set());
   const debouncedSearch = useDebounce(search);
   const { page, totalPages, setPage, setTotal } = usePagination(1, 12);
+
+  useEffect(() => {
+    getClassifieds({ limit: 200 })
+      .then((res) => {
+        const data = res?.data || res || [];
+        const cats = new Set();
+        (Array.isArray(data) ? data : []).forEach((c) => { if (c.category) cats.add(c.category); });
+        setAvailableCategories(cats);
+      })
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     setLoading(true);
@@ -56,7 +68,7 @@ export default function ClassifiedListPage() {
         >
           Todos
         </button>
-        {Object.keys(ClassifiedCategory).map((cat) => (
+        {Object.keys(ClassifiedCategory).filter((cat) => availableCategories.has(cat)).map((cat) => (
           <button
             key={cat}
             onClick={() => { setCategory(cat); setPage(1); }}

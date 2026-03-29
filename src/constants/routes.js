@@ -5,6 +5,9 @@ export const ROUTES = Object.freeze({
   EDITAIS: '/editais',
   EDITAL_DETAIL: '/editais/:id',
   EDITAIS_FOMENTO: '/editais-fomento',
+  EDITAIS_FOMENTO_ENCERRADOS: '/editais-fomento/encerrados',
+  EDITAIS_FOMENTO_PROJETOS: '/editais-fomento/projetos',
+  EDITAIS_FOMENTO_DASHBOARD: '/editais-fomento/dashboard',
   EDITAL_FOMENTO_DETAIL: '/editais-fomento/:id',
   CLASSIFIEDS: '/classificados',
   CLASSIFIED_DETAIL: '/classificados/:id',
@@ -42,5 +45,6 @@ export const ROUTES = Object.freeze({
   ADMIN_LESSON_COMMENTS: '/admin/cursos/aulas/:lessonId/comentarios',
   ADMIN_ARTICLE_COMMENTS: '/admin/artigos/comentarios',
   ADMIN_PENDING_COMMENTS: '/admin/comentarios',
+  ADMIN_PROJETOS_FOMENTO: '/admin/projetos-fomento',
   ADMIN_USERS: '/admin/usuarios',
 });

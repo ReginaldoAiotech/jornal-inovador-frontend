@@ -13,7 +13,7 @@ const categories = [
 
 export default function CategorySection() {
   return (
-    <section className="py-12">
+    <section className="py-12 bg-primary-50/30">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <h2 className="text-2xl font-bold font-heading text-gray-900 text-center mb-8">
           Explore por area

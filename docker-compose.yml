@@ -1,0 +1,18 @@
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    ports:
+      - "5173:5173"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    environment:
+      - VITE_PROXY_TARGET=http://jornal_inovador_app:3000
+    networks:
+      - jornal-inovador_jornal_network
+
+networks:
+  jornal-inovador_jornal_network:
+    external: true
