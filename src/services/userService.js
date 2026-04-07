@@ -33,3 +33,8 @@ export async function approveUser(id) {
 export async function rejectUser(id) {
   await api.patch(API.USERS.REJECT(id));
 }
+
+export async function suspendUser(id) {
+  const { data } = await api.patch(API.USERS.BY_ID(id), { isApproved: false });
+  return data;
+}

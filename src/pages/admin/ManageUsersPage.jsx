@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useDocumentTitle } from '../../hooks/useDocumentTitle';
-import { getUsers, updateUser, deleteUser, approveUser, rejectUser } from '../../services/userService';
+import { getUsers, updateUser, deleteUser, approveUser, rejectUser, suspendUser } from '../../services/userService';
 import DataTable from '../../components/common/DataTable';
 import ConfirmDialog from '../../components/common/ConfirmDialog';
 import Badge from '../../components/ui/Badge';
 import Modal from '../../components/ui/Modal';
 import Select from '../../components/ui/Select';
 import Button from '../../components/ui/Button';
-import { Pencil, Trash2, CheckCircle, XCircle, Clock, UserCheck } from 'lucide-react';
+import { Pencil, Trash2, CheckCircle, XCircle, Clock, UserCheck, Ban } from 'lucide-react';
 import { formatDate } from '../../utils/formatters';
 import { cn } from '../../utils/cn';
 import toast from 'react-hot-toast';
@@ -26,6 +26,7 @@ export default function ManageUsersPage() {
   const [loading, setLoading] = useState(true);
   const [deleteId, setDeleteId] = useState(null);
   const [rejectId, setRejectId] = useState(null);
+  const [suspendId, setSuspendId] = useState(null);
   const [editUser, setEditUser] = useState(null);
   const [editRole, setEditRole] = useState('');
   const [tab, setTab] = useState('all'); // 'all' | 'pending' | 'approved'
@@ -54,6 +55,17 @@ export default function ManageUsersPage() {
       fetchData();
     } catch {
       toast.error('Erro ao aprovar');
+    }
+  };
+
+  const handleSuspend = async () => {
+    try {
+      await suspendUser(suspendId);
+      toast.success('Acesso do usuario suspenso.');
+      setSuspendId(null);
+      fetchData();
+    } catch {
+      toast.error('Erro ao suspender');
     }
   };
 
@@ -140,6 +152,15 @@ export default function ManageUsersPage() {
               </button>
             </>
           )}
+          {row.isApproved && row.role !== 'ADMIN' && (
+            <button
+              onClick={() => setSuspendId(row.id)}
+              className="p-1.5 rounded hover:bg-orange-50 text-orange-500"
+              title="Suspender acesso"
+            >
+              <Ban className="h-4 w-4" />
+            </button>
+          )}
           <button onClick={() => { setEditUser(row); setEditRole(row.role); }} className="p-1.5 rounded hover:bg-gray-100 text-gray-500" title="Editar funcao">
             <Pencil className="h-4 w-4" />
           </button>
@@ -201,6 +222,14 @@ export default function ManageUsersPage() {
         onCancel={() => setRejectId(null)}
         title="Rejeitar cadastro"
         message="O usuario sera removido do sistema. Deseja continuar?"
+      />
+
+      <ConfirmDialog
+        isOpen={!!suspendId}
+        onConfirm={handleSuspend}
+        onCancel={() => setSuspendId(null)}
+        title="Suspender acesso"
+        message="O usuario nao podera mais acessar o sistema. Voce podera reativa-lo aprovando novamente. Deseja continuar?"
       />
 
       <Modal isOpen={!!editUser} onClose={() => setEditUser(null)} title={`Editar funcao - ${editUser?.name}`}>
