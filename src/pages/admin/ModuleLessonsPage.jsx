@@ -52,11 +52,6 @@ export default function ModuleLessonsPage() {
       render: (row) => <span className="font-medium">{row.title}</span>,
     },
     {
-      key: 'isFree',
-      label: 'Gratuita',
-      render: (row) => row.isFree ? <Badge variant="success">Sim</Badge> : <Badge variant="default">Nao</Badge>,
-    },
-    {
       key: 'published',
       label: 'Status',
       render: (row) => <Badge variant={row.published ? 'success' : 'default'}>{row.published ? 'Publicada' : 'Rascunho'}</Badge>,

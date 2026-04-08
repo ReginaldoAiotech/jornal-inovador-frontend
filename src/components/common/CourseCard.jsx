@@ -1,16 +1,18 @@
 import { Link } from 'react-router-dom';
-import { User, BarChart3 } from 'lucide-react';
+import { User, BarChart3, PlayCircle } from 'lucide-react';
 import Badge from '../ui/Badge';
-import { formatCurrency } from '../../utils/formatters';
 
 const LEVEL_LABELS = { BEGINNER: 'Iniciante', INTERMEDIATE: 'Intermediario', ADVANCED: 'Avancado' };
 const LEVEL_VARIANT = { BEGINNER: 'info', INTERMEDIATE: 'warning', ADVANCED: 'danger' };
 
 export default function CourseCard({ course }) {
+  const totalLessons = (course.modules || []).reduce((sum, m) => sum + (m.lessons?.length || 0), 0);
+  const totalModules = (course.modules || []).length;
+
   return (
     <Link
       to={`/cursos/${course.id}`}
-      className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow group"
+      className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md hover:-translate-y-0.5 transition-all group"
     >
       {course.coverImageUrl ? (
         <img
@@ -42,16 +44,19 @@ export default function CourseCard({ course }) {
         {course.shortDescription && (
           <p className="text-sm text-gray-500 line-clamp-2 mb-3">{course.shortDescription}</p>
         )}
-        <div className="flex items-center justify-between mt-auto">
+        <div className="flex items-center justify-between mt-auto pt-2 border-t border-gray-50">
           {course.instructor && (
             <div className="flex items-center gap-1.5 text-xs text-gray-400">
               <User className="h-3.5 w-3.5" />
-              <span>{course.instructor}</span>
+              <span className="truncate">{course.instructor}</span>
             </div>
           )}
-          <span className="text-sm font-bold text-gray-900">
-            {course.price ? formatCurrency(course.price) : 'Gratuito'}
-          </span>
+          {totalLessons > 0 && (
+            <div className="flex items-center gap-1 text-xs text-gray-400">
+              <PlayCircle className="h-3.5 w-3.5" />
+              <span>{totalLessons} aula{totalLessons !== 1 ? 's' : ''}</span>
+            </div>
+          )}
         </div>
       </div>
     </Link>

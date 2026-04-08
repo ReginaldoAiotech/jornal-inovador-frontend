@@ -1,13 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, User, BarChart3, Clock, ChevronDown, ChevronUp, Play, Lock, CheckCircle } from 'lucide-react';
+import { ArrowLeft, User, BarChart3, ChevronDown, ChevronUp, Play, CheckCircle, GraduationCap } from 'lucide-react';
 import { useDocumentTitle } from '../../hooks/useDocumentTitle';
 import { useAuth } from '../../hooks/useAuth';
 import { getCourseById, getCourseProgress } from '../../services/courseService';
 import Badge from '../../components/ui/Badge';
-import Button from '../../components/ui/Button';
 import Spinner from '../../components/ui/Spinner';
-import { formatCurrency } from '../../utils/formatters';
 import { ROUTES } from '../../constants/routes';
 
 const LEVEL_LABELS = { BEGINNER: 'Iniciante', INTERMEDIATE: 'Intermediario', ADVANCED: 'Avancado' };
@@ -27,20 +25,14 @@ function ModuleAccordion({ module: mod, courseId, defaultOpen = false, completed
   const lessons = mod.lessons || [];
   const completedInModule = lessons.filter((l) => completedLessons.has(l.id)).length;
 
-  const getLessonIcon = (lesson) => {
-    if (completedLessons.has(lesson.id)) return <CheckCircle className="h-4 w-4 text-green-500" />;
-    if (lesson.isFree) return <Play className="h-4 w-4" />;
-    return <Lock className="h-4 w-4 text-gray-300" />;
-  };
-
   return (
-    <div className="border border-gray-100 rounded-xl overflow-hidden">
+    <div className="border border-gray-100 rounded-xl overflow-hidden bg-white">
       <button
         onClick={() => setOpen(!open)}
-        className="w-full flex items-center justify-between px-5 py-4 bg-white hover:bg-gray-50 transition-colors"
+        className="w-full flex items-center justify-between px-5 py-4 hover:bg-gray-50 transition-colors"
       >
         <div className="flex items-center gap-3">
-          <span className="text-xs font-bold text-gray-400 bg-gray-100 rounded-full w-7 h-7 flex items-center justify-center">
+          <span className="text-xs font-bold text-primary-600 bg-primary-50 rounded-full w-7 h-7 flex items-center justify-center">
             {mod.order ?? '—'}
           </span>
           <span className="font-medium text-gray-900 text-left">{mod.title}</span>
@@ -52,25 +44,23 @@ function ModuleAccordion({ module: mod, courseId, defaultOpen = false, completed
       </button>
       {open && lessons.length > 0 && (
         <div className="border-t border-gray-100 divide-y divide-gray-50">
-          {lessons.map((lesson) => (
-            <div key={lesson.id} className="flex items-center gap-3 px-5 py-3">
-              {lesson.isFree || completedLessons.has(lesson.id) ? (
-                <Link
-                  to={`/cursos/${courseId}/aulas/${lesson.id}`}
-                  className="flex items-center gap-3 flex-1 text-primary-600 hover:text-primary-700"
-                >
-                  {getLessonIcon(lesson)}
-                  <span className="text-sm">{lesson.title}</span>
-                  {lesson.isFree && !completedLessons.has(lesson.id) && <Badge variant="success" className="text-[10px]">Gratuita</Badge>}
-                </Link>
-              ) : (
-                <div className="flex items-center gap-3 flex-1 text-gray-500">
-                  {getLessonIcon(lesson)}
-                  <span className="text-sm">{lesson.title}</span>
-                </div>
-              )}
-            </div>
-          ))}
+          {lessons.map((lesson) => {
+            const isCompleted = completedLessons.has(lesson.id);
+            return (
+              <Link
+                key={lesson.id}
+                to={`/cursos/${courseId}/aulas/${lesson.id}`}
+                className="flex items-center gap-3 px-5 py-3 hover:bg-primary-50/50 transition-colors group"
+              >
+                {isCompleted ? (
+                  <CheckCircle className="h-4 w-4 text-emerald-500 shrink-0" />
+                ) : (
+                  <Play className="h-4 w-4 text-primary-500 shrink-0" />
+                )}
+                <span className="text-sm text-gray-700 group-hover:text-primary-600 flex-1">{lesson.title}</span>
+              </Link>
+            );
+          })}
         </div>
       )}
     </div>
@@ -109,6 +99,7 @@ export default function CourseDetailPage() {
   const totalLessons = modules.reduce((sum, m) => sum + (m.lessons?.length || 0), 0);
   const completedCount = completedLessons.size;
   const progressPercent = totalLessons > 0 ? Math.round((completedCount / totalLessons) * 100) : 0;
+  const firstLesson = modules[0]?.lessons?.[0];
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
@@ -174,18 +165,27 @@ export default function CourseDetailPage() {
           </div>
         </div>
 
-        {/* Sidebar com preco/acao */}
+        {/* Sidebar */}
         <div className="lg:col-span-1">
           <div className="sticky top-20 bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-            <div className="text-3xl font-bold text-gray-900 mb-1">
-              {course.price ? formatCurrency(course.price) : 'Gratuito'}
+            <div className="flex items-center gap-2 mb-4">
+              <div className="p-2 rounded-lg bg-emerald-50">
+                <GraduationCap className="h-5 w-5 text-emerald-600" />
+              </div>
+              <div>
+                <p className="text-sm font-bold text-gray-900">Acesso liberado</p>
+                <p className="text-xs text-gray-500">Conteudo gratuito</p>
+              </div>
             </div>
-            {course.price > 0 && (
-              <p className="text-sm text-gray-400 mb-4">Acesso completo ao curso</p>
+
+            {firstLesson && (
+              <Link
+                to={`/cursos/${course.id}/aulas/${firstLesson.id}`}
+                className="block w-full text-center py-3 bg-primary-500 hover:bg-primary-600 text-white text-sm font-semibold rounded-xl shadow-sm transition-colors mb-3"
+              >
+                {completedCount > 0 ? 'Continuar curso' : 'Comecar curso'}
+              </Link>
             )}
-            <Button className="w-full mb-3">
-              {course.price ? 'Comprar curso' : 'Acessar curso'}
-            </Button>
 
             {/* Barra de progresso */}
             {isAuthenticated && totalLessons > 0 && (
@@ -204,7 +204,7 @@ export default function CourseDetailPage() {
               </div>
             )}
 
-            <div className="text-xs text-gray-400 text-center space-y-1 mt-4">
+            <div className="text-xs text-gray-400 text-center space-y-1 mt-4 pt-4 border-t border-gray-100">
               <p>{modules.length} modulo{modules.length !== 1 ? 's' : ''}</p>
               <p>{totalLessons} aula{totalLessons !== 1 ? 's' : ''}</p>
             </div>

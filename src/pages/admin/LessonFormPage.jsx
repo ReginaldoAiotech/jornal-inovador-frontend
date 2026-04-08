@@ -28,7 +28,6 @@ export default function LessonFormPage() {
     content: '',
     order: '',
     published: false,
-    isFree: false,
   });
 
   useEffect(() => {
@@ -42,7 +41,6 @@ export default function LessonFormPage() {
           content: d.content || '',
           order: d.order ?? '',
           published: d.published || false,
-          isFree: d.isFree || false,
         });
         if (d.videoUrl) setVideoPreview(d.videoUrl);
         if (d.videoStatus) setVideoStatus(d.videoStatus);
@@ -86,7 +84,6 @@ export default function LessonFormPage() {
       const body = {
         title: form.title,
         published: form.published,
-        isFree: form.isFree,
       };
       if (form.description) body.description = form.description;
       if (form.content) body.content = form.content;
@@ -159,10 +156,6 @@ export default function LessonFormPage() {
           <label className="flex items-center gap-2 text-sm text-gray-700">
             <input type="checkbox" checked={form.published} onChange={handleChange('published')} className="rounded border-gray-300 text-primary-500 focus:ring-primary-400" />
             Publicada
-          </label>
-          <label className="flex items-center gap-2 text-sm text-gray-700">
-            <input type="checkbox" checked={form.isFree} onChange={handleChange('isFree')} className="rounded border-gray-300 text-primary-500 focus:ring-primary-400" />
-            Aula gratuita
           </label>
         </div>
 

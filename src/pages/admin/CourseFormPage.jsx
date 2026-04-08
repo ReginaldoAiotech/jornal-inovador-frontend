@@ -41,7 +41,6 @@ export default function CourseFormPage() {
     shortDescription: '',
     category: '',
     level: '',
-    price: '',
     instructor: '',
     published: false,
     featured: false,
@@ -59,7 +58,6 @@ export default function CourseFormPage() {
           shortDescription: d.shortDescription || '',
           category: d.category || '',
           level: d.level || '',
-          price: d.price ?? '',
           instructor: d.instructor || '',
           published: d.published || false,
           featured: d.featured || false,
@@ -99,7 +97,6 @@ export default function CourseFormPage() {
       if (form.shortDescription) body.shortDescription = form.shortDescription;
       if (form.category) body.category = form.category;
       if (form.level) body.level = form.level;
-      if (form.price) body.price = Number(form.price);
       if (form.instructor) body.instructor = form.instructor;
 
       let result;
@@ -151,10 +148,7 @@ export default function CourseFormPage() {
             </select>
           </div>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Input label="Preco (R$)" id="price" type="number" step="0.01" value={form.price} onChange={handleChange('price')} placeholder="0.00 = gratuito" />
-          <Input label="Instrutor" id="instructor" value={form.instructor} onChange={handleChange('instructor')} />
-        </div>
+        <Input label="Instrutor" id="instructor" value={form.instructor} onChange={handleChange('instructor')} />
 
         <FileUpload
           label="Imagem de capa"

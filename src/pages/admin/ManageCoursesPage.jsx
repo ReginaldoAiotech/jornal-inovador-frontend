@@ -7,7 +7,6 @@ import DataTable from '../../components/common/DataTable';
 import ConfirmDialog from '../../components/common/ConfirmDialog';
 import Badge from '../../components/ui/Badge';
 import Button from '../../components/ui/Button';
-import { formatCurrency } from '../../utils/formatters';
 import { ROUTES } from '../../constants/routes';
 import toast from 'react-hot-toast';
 
@@ -61,11 +60,6 @@ export default function ManageCoursesPage() {
       render: (row) => row.level
         ? <Badge variant={LEVEL_VARIANT[row.level] || 'default'}>{LEVEL_LABELS[row.level] || row.level}</Badge>
         : '—',
-    },
-    {
-      key: 'price',
-      label: 'Preco',
-      render: (row) => row.price ? formatCurrency(row.price) : 'Gratuito',
     },
     {
       key: 'published',

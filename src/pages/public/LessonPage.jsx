@@ -1,11 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, Play, Lock, ChevronDown, ChevronUp, Send, User, CornerDownRight, Clock, MessageSquare, CheckCircle, Circle } from 'lucide-react';
+import { ArrowLeft, Play, ChevronDown, ChevronUp, Send, User, CornerDownRight, Clock, MessageSquare, CheckCircle, Circle } from 'lucide-react';
 import { useDocumentTitle } from '../../hooks/useDocumentTitle';
 import { useAuth } from '../../hooks/useAuth';
 import { getCourseById, getLessonById, getComments, createComment, replyComment, getCourseProgress, markLessonComplete, unmarkLessonComplete } from '../../services/courseService';
 import Spinner from '../../components/ui/Spinner';
-import Badge from '../../components/ui/Badge';
 import Button from '../../components/ui/Button';
 import { cn } from '../../utils/cn';
 import { formatRelativeDate } from '../../utils/formatters';
@@ -54,8 +53,7 @@ function LessonSidebar({ course, courseId, currentLessonId, completedLessons }) 
 
   const getLessonIcon = (lesson) => {
     if (completedLessons.has(lesson.id)) return <CheckCircle className="h-3.5 w-3.5 shrink-0 text-green-500" />;
-    if (lesson.isFree) return <Play className="h-3.5 w-3.5 shrink-0" />;
-    return <Lock className="h-3.5 w-3.5 shrink-0 text-gray-300" />;
+    return <Play className="h-3.5 w-3.5 shrink-0" />;
   };
 
   const allLessons = modules.flatMap((m) => m.lessons || []);
@@ -432,8 +430,6 @@ export default function LessonPage() {
               {lesson?.description && (
                 <p className="text-gray-500 mb-4">{lesson.description}</p>
               )}
-
-              {lesson?.isFree && <Badge variant="success" className="mb-4">Aula gratuita</Badge>}
 
               {/* Conteudo HTML */}
               {lesson?.content && (
