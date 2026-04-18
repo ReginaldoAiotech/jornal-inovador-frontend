@@ -28,17 +28,17 @@ function getVolume(e) {
 }
 
 const COLORS = {
-  primary: '#1B1464',
-  accent: '#F7B11E',
-  secondary: '#91B240',
+  primary: '#766EFB',
+  accent: '#ED4E64',
+  secondary: '#76DDC9',
   emerald: '#10b981',
-  red: '#ef4444',
-  violet: '#8b5cf6',
+  red: '#ED4E64',
+  violet: '#766EFB',
   blue: '#3b82f6',
   amber: '#f59e0b',
   rose: '#f43f5e',
-  cyan: '#06b6d4',
-  gray: '#9ca3af',
+  cyan: '#76DDC9',
+  gray: '#97a7b6',
 };
 
 const PIE_COLORS = [COLORS.primary, COLORS.accent, COLORS.secondary, COLORS.emerald, COLORS.violet, COLORS.blue, COLORS.amber, COLORS.rose, COLORS.cyan];
