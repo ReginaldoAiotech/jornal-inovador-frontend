@@ -16,11 +16,11 @@ export default function TopBar() {
         <div className="flex items-center gap-4">
           <span className="flex items-center gap-1 text-accent-300 font-medium">
             <TrendingUp className="h-3 w-3" />
-            Inovacao, Ciencia e Tecnologia
+            Inovação, Fomento e Empreendedorismo
           </span>
-          <a href="mailto:contato@jornaldoinovador.com.br" className="text-primary-200 hover:text-white transition-colors hidden md:flex items-center gap-1">
+          <a href="mailto:contato@plataformadigitalconex.com.br" className="text-primary-200 hover:text-white transition-colors hidden md:flex items-center gap-1">
             <Mail className="h-3 w-3" />
-            contato@jornaldoinovador.com.br
+            contato@plataformadigitalconex.com.br
           </a>
         </div>
       </div>

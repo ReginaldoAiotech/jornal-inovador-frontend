@@ -157,7 +157,7 @@ export default function ArticleDetailPage() {
                 <User className="h-5 w-5" />
               </div>
               <div>
-                <p className="text-sm font-medium text-gray-900">Redacao O Inovador</p>
+                <p className="text-sm font-medium text-gray-900">Redacao Conex</p>
                 <DateDisplay date={article.publishedAt || article.createdAt} className="text-xs text-gray-500" />
               </div>
             </div>

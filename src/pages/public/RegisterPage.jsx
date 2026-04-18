@@ -80,7 +80,7 @@ export default function RegisterPage() {
               to={ROUTES.HOME}
               className="inline-flex items-center gap-2 bg-primary-500 text-white px-6 py-2.5 rounded-lg font-medium hover:bg-primary-600 transition-colors text-sm"
             >
-              Voltar para o jornal
+              Voltar para a plataforma
             </Link>
           </div>
         </div>
@@ -94,7 +94,7 @@ export default function RegisterPage() {
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-8">
           <div className="text-center mb-8">
             <h1 className="text-2xl font-bold font-heading text-gray-900">Cadastre-se</h1>
-            <p className="text-sm text-gray-500 mt-1">Crie sua conta no Jornal O Inovador</p>
+            <p className="text-sm text-gray-500 mt-1">Crie sua conta na Plataforma Conex</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">

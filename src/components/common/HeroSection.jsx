@@ -33,10 +33,10 @@ export default function HeroSection({ article, sideArticles = [] }) {
       <section className="bg-gray-50 border-b border-gray-100 py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 text-center">
           <h1 className="text-3xl md:text-4xl font-bold font-heading text-gray-900 mb-3">
-            Jornal O Inovador
+            Plataforma Digital Conex
           </h1>
           <p className="text-base text-gray-500 max-w-xl mx-auto">
-            Noticias, editais e oportunidades para empreendedores e inovadores.
+            Inovação, fomento e oportunidades para empreendedores.
           </p>
         </div>
       </section>

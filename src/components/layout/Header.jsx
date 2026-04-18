@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Menu, X, User, LogOut, LayoutDashboard, Shield, Search, Newspaper, ShoppingBag } from 'lucide-react';
-import logoSvg from '../../assets/logo.svg';
+import logoPng from '../../assets/logo-conex.png';
 import { useAuth } from '../../hooks/useAuth';
 import { ROUTES } from '../../constants/routes';
 import Button from '../ui/Button';
@@ -75,7 +75,7 @@ export default function Header() {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link to={ROUTES.HOME} className="shrink-0">
-            <img src={logoSvg} alt="Jornal O Inovador" className="h-12" />
+            <img src={logoPng} alt="Conex" className="h-10" />
           </Link>
 
           {/* Nav desktop */}

@@ -48,7 +48,7 @@ export default function LoginPage() {
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-8">
           <div className="text-center mb-8">
             <h1 className="text-2xl font-bold font-heading text-gray-900">Entrar</h1>
-            <p className="text-sm text-gray-500 mt-1">Acesse sua conta no Jornal O Inovador</p>
+            <p className="text-sm text-gray-500 mt-1">Acesse sua conta na Plataforma Conex</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
