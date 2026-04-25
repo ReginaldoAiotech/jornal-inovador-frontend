@@ -167,7 +167,18 @@ export default function ArticleDetailPage() {
 
         {/* Conteudo */}
         <div
-          className="prose prose-lg max-w-none mb-8 prose-headings:font-heading prose-img:rounded-lg [&_a]:text-primary-500 [&_a]:underline [&_a]:decoration-primary-300 [&_a]:underline-offset-2 [&_a]:font-medium [&_a]:bg-primary-50 [&_a]:px-0.5 [&_a]:rounded [&_a]:hover:bg-primary-100 [&_a]:transition-colors"
+          className="article-content max-w-none mb-8
+            text-[17px] leading-[1.8] text-gray-800
+            [&>p]:mb-5 [&>p]:text-justify [&>p]:hyphens-auto
+            [&>h2]:text-2xl [&>h2]:md:text-3xl [&>h2]:font-bold [&>h2]:font-heading [&>h2]:text-gray-900 [&>h2]:mt-12 [&>h2]:mb-4 [&>h2]:leading-tight
+            [&>h3]:text-xl [&>h3]:font-bold [&>h3]:font-heading [&>h3]:text-gray-900 [&>h3]:mt-8 [&>h3]:mb-3
+            [&>blockquote]:my-8 [&>blockquote]:py-4 [&>blockquote]:px-6 [&>blockquote]:border-l-4 [&>blockquote]:border-primary-500 [&>blockquote]:bg-primary-50/50 [&>blockquote]:italic [&>blockquote]:text-xl [&>blockquote]:font-heading [&>blockquote]:text-primary-900 [&>blockquote]:rounded-r-lg
+            [&>ul]:list-disc [&>ul]:pl-6 [&>ul]:mb-5 [&>ul]:space-y-2
+            [&>ol]:list-decimal [&>ol]:pl-6 [&>ol]:mb-5 [&>ol]:space-y-2
+            [&_strong]:font-bold [&_strong]:text-gray-900
+            [&_em]:italic
+            [&_img]:rounded-lg [&_img]:my-6
+            [&_a]:text-primary-500 [&_a]:underline [&_a]:decoration-primary-300 [&_a]:underline-offset-2 [&_a]:font-medium [&_a]:hover:text-primary-600 [&_a]:transition-colors"
           dangerouslySetInnerHTML={{ __html: article.content }}
         />
 
