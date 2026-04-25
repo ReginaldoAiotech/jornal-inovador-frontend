@@ -14,7 +14,16 @@ import toast from 'react-hot-toast';
 function extractCompletedIds(progressRes) {
   if (!progressRes) return [];
   const d = progressRes?.data || progressRes;
-  // Tentar varios formatos possiveis da API
+  // Formato atual da API: { modules: [{ lessons: [{ lessonId, completed }] }] }
+  if (Array.isArray(d?.modules)) {
+    return d.modules.flatMap((m) =>
+      (m.lessons || [])
+        .filter((l) => l.completed)
+        .map((l) => l.lessonId || l.id)
+        .filter(Boolean),
+    );
+  }
+  // Formatos alternativos legados
   if (Array.isArray(d?.completedLessonIds)) return d.completedLessonIds;
   if (Array.isArray(d?.completedLessons)) return d.completedLessons.map((l) => l.id || l);
   if (Array.isArray(d)) return d.map((l) => l.lessonId || l.id || l);
