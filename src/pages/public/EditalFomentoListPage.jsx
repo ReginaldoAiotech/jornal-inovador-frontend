@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { FileText, MapPin, Lock, TrendingUp, Heart, MessageCircle, SlidersHorizontal, X, Search, Globe, CalendarRange } from 'lucide-react';
+import { FileText, MapPin, Lock, TrendingUp, Heart, MessageCircle, SlidersHorizontal, X, Search, Sparkles, Globe, CalendarRange } from 'lucide-react';
 import { useDocumentTitle } from '../../hooks/useDocumentTitle';
 import { useDebounce } from '../../hooks/useDebounce';
 import { useAuth } from '../../hooks/useAuth';
@@ -15,14 +15,11 @@ import { getEffectiveEditalStatus, formatCurrency } from '../../utils/formatters
 
 const PER_PAGE = 12;
 
-function hasFuturePrazo(edital) {
-  if (!edital?.prazoSubmissaoFase1) return false;
-  const prazo = new Date(edital.prazoSubmissaoFase1);
-  if (Number.isNaN(prazo.getTime())) return false;
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  return prazo >= today;
-}
+const STATUS_FILTERS = [
+  { value: '', label: 'Todos' },
+  { value: 'ABERTO', label: 'Com prazo', icon: TrendingUp },
+  { value: 'CONTINUO', label: 'Fluxo continuo', icon: Sparkles },
+];
 
 function StatCard({ icon: Icon, label, value, gradient }) {
   return (
@@ -73,6 +70,7 @@ export default function EditalFomentoListPage() {
   const [selectedAreas, setSelectedAreas] = useState([]);
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
+  const [status, setStatus] = useState('');
   const [estados, setEstados] = useState([]);
   const [chatOpen, setChatOpen] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
@@ -114,36 +112,42 @@ export default function EditalFomentoListPage() {
 
   const stats = useMemo(() => {
     if (allEditais.length === 0) return null;
-    let abertos = 0, volumeTotal = 0;
+    let abertos = 0, fechados = 0, continuos = 0, volumeTotal = 0, totalCategoria = 0;
     let countFomento = 0, countAceleracao = 0;
     allEditais.forEach((e) => {
-      // Conta apenas editais com prazo futuro — coerente com o que e listado
-      if (!hasFuturePrazo(e)) return;
       const cat = e.categoria || 'FOMENTO';
-      if (cat === 'FOMENTO') countFomento++;
-      else if (cat === 'ACELERACAO') countAceleracao++;
+      // Conta para a aba apenas os editais que efetivamente aparecem na listagem
+      // (abertos + fluxo continuo) — encerrados ficam fora.
+      if (e._effectiveStatus !== 'ENCERRADO') {
+        if (cat === 'FOMENTO') countFomento++;
+        else if (cat === 'ACELERACAO') countAceleracao++;
+      }
 
       if (cat !== categoria) return;
-      abertos++;
+      totalCategoria++;
+      if (e._effectiveStatus === 'ENCERRADO') fechados++;
+      else if (e._effectiveStatus === 'CONTINUO') continuos++;
+      else abertos++;
       const vol = parseFloat(e.volumeTotalProjeto) || parseFloat(e.volumeAporte1) || 0;
       volumeTotal += vol;
     });
-    return { total: abertos, abertos, volumeTotal, countFomento, countAceleracao };
+    return { total: totalCategoria, abertos, fechados, continuos, volumeTotal, countFomento, countAceleracao };
   }, [allEditais, categoria]);
 
   const filteredEditais = useMemo(() => {
     return allEditais
       .filter((e) => {
-        // Apenas editais com prazo de submissao posterior a hoje
-        if (!hasFuturePrazo(e)) return false;
+        // Apenas abertos e fluxo continuo nesta pagina
+        if (e._effectiveStatus === 'ENCERRADO') return false;
         // Filtro por categoria (FOMENTO ou ACELERACAO)
         if (categoria && (e.categoria || 'FOMENTO') !== categoria) return false;
         if (showFavorites && !e.isFavorited) return false;
+        if (status && e._effectiveStatus !== status) return false;
         if (selectedEstados.length > 0 && !selectedEstados.includes(e.estado)) return false;
         if (selectedFaps.length > 0 && !selectedFaps.includes(e.fap)) return false;
         if (selectedAreas.length > 0 && !(e.areasAtuacao || []).some((a) => selectedAreas.includes(a))) return false;
-        if (dateFrom && new Date(e.prazoSubmissaoFase1) < new Date(dateFrom)) return false;
-        if (dateTo && new Date(e.prazoSubmissaoFase1) > new Date(dateTo)) return false;
+        if (dateFrom && e.prazoSubmissaoFase1 && new Date(e.prazoSubmissaoFase1) < new Date(dateFrom)) return false;
+        if (dateTo && e.prazoSubmissaoFase1 && new Date(e.prazoSubmissaoFase1) > new Date(dateTo)) return false;
         if (debouncedSearch) {
           const q = debouncedSearch.toLowerCase();
           const searchable = [e.tituloChamada, e.instituicaoFomento, e.fap, e.informacoesGerais]
@@ -153,16 +157,19 @@ export default function EditalFomentoListPage() {
         return true;
       })
       .sort((a, b) => {
-        const dateA = new Date(a.prazoSubmissaoFase1).getTime();
-        const dateB = new Date(b.prazoSubmissaoFase1).getTime();
+        const aEncerrado = a._effectiveStatus === 'ENCERRADO';
+        const bEncerrado = b._effectiveStatus === 'ENCERRADO';
+        if (aEncerrado !== bEncerrado) return aEncerrado ? 1 : -1;
+        const dateA = a.prazoSubmissaoFase1 ? new Date(a.prazoSubmissaoFase1).getTime() : Infinity;
+        const dateB = b.prazoSubmissaoFase1 ? new Date(b.prazoSubmissaoFase1).getTime() : Infinity;
         return dateA - dateB;
       });
-  }, [allEditais, categoria, selectedEstados, selectedFaps, selectedAreas, dateFrom, dateTo, debouncedSearch, showFavorites]);
+  }, [allEditais, categoria, status, selectedEstados, selectedFaps, selectedAreas, dateFrom, dateTo, debouncedSearch, showFavorites]);
 
   const totalPages = Math.ceil(filteredEditais.length / PER_PAGE) || 1;
   const paginatedEditais = filteredEditais.slice((page - 1) * PER_PAGE, page * PER_PAGE);
 
-  useEffect(() => { setPage(1); }, [categoria, selectedEstados, selectedFaps, selectedAreas, dateFrom, dateTo, debouncedSearch, showFavorites]);
+  useEffect(() => { setPage(1); }, [categoria, status, selectedEstados, selectedFaps, selectedAreas, dateFrom, dateTo, debouncedSearch, showFavorites]);
 
   const { allAreas, allFaps } = useMemo(() => {
     const areasSet = new Set(), fapsSet = new Set();
@@ -185,6 +192,7 @@ export default function EditalFomentoListPage() {
     selectedFaps.length > 0,
     selectedAreas.length > 0,
     dateFrom || dateTo,
+    status,
   ].filter(Boolean).length;
 
   const handleToggleFavorite = (id) => {
@@ -199,6 +207,7 @@ export default function EditalFomentoListPage() {
     setSelectedAreas([]);
     setDateFrom('');
     setDateTo('');
+    setStatus('');
     setSearch('');
     setShowFavorites(false);
   };
@@ -222,8 +231,18 @@ export default function EditalFomentoListPage() {
           {stats && (
             <div className="hidden sm:flex items-center gap-5 text-sm">
               <div className="text-center">
-                <p className="text-lg font-bold text-emerald-600">{stats.abertos}</p>
+                <p className="text-lg font-bold text-gray-900">{stats.total}</p>
+                <p className="text-xs text-gray-400">Total</p>
+              </div>
+              <div className="w-px h-8 bg-gray-200" />
+              <div className="text-center">
+                <p className="text-lg font-bold text-emerald-600">{stats.abertos + stats.continuos}</p>
                 <p className="text-xs text-gray-400">Abertos</p>
+              </div>
+              <div className="w-px h-8 bg-gray-200" />
+              <div className="text-center">
+                <p className="text-lg font-bold text-gray-400">{stats.fechados}</p>
+                <p className="text-xs text-gray-400">Encerrados</p>
               </div>
               <div className="w-px h-8 bg-gray-200" />
               <div className="text-center">
@@ -305,13 +324,16 @@ export default function EditalFomentoListPage() {
 
           {/* Status chips + filter toggle */}
           <div className="flex items-center gap-2 mt-4 overflow-x-auto pb-1 scrollbar-none">
-            <FilterChip
-              label="Todos"
-              icon={TrendingUp}
-              active={!showFavorites}
-              count={stats?.abertos || 0}
-              onClick={() => setShowFavorites(false)}
-            />
+            {STATUS_FILTERS.map((f) => (
+              <FilterChip
+                key={f.value}
+                label={f.label}
+                icon={f.icon}
+                active={!showFavorites && status === f.value}
+                count={f.value === '' ? (stats?.abertos || 0) + (stats?.continuos || 0) : f.value === 'ABERTO' ? stats?.abertos : stats?.continuos}
+                onClick={() => { setStatus(f.value); setShowFavorites(false); }}
+              />
+            ))}
             {isAuthenticated && (
               <>
                 <div className="w-px h-7 bg-gray-200 shrink-0 mx-1" />
@@ -319,8 +341,8 @@ export default function EditalFomentoListPage() {
                   label="Favoritos"
                   icon={Heart}
                   active={showFavorites}
-                  count={allEditais.filter((e) => e.isFavorited && hasFuturePrazo(e)).length}
-                  onClick={() => setShowFavorites(!showFavorites)}
+                  count={allEditais.filter((e) => e.isFavorited && e._effectiveStatus !== 'ENCERRADO').length}
+                  onClick={() => { setShowFavorites(!showFavorites); setStatus(''); }}
                 />
               </>
             )}
@@ -435,10 +457,10 @@ export default function EditalFomentoListPage() {
         </div>
 
         {/* Highlight banner */}
-        {!loading && stats && stats.abertos > 0 && (
+        {!loading && stats && (stats.abertos + stats.continuos) > 0 && (
           <div className="mb-6 rounded-xl bg-emerald-50 border border-emerald-200 px-5 py-3.5 text-center">
             <p className="text-base text-emerald-800">
-              Aproveite as <span className="font-bold">{stats.abertos} oportunidades</span> de editais abertos, totalizando <span className="font-bold">{formatCurrency(stats.volumeTotal)}</span> em fomento.
+              Aproveite as <span className="font-bold">{stats.abertos + stats.continuos} oportunidades</span> de editais abertos, totalizando <span className="font-bold">{formatCurrency(stats.volumeTotal)}</span> em fomento.
             </p>
           </div>
         )}
