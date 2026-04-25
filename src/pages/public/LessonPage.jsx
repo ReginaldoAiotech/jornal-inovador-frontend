@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft, Play, ChevronDown, ChevronUp, Send, User, CornerDownRight, Clock, MessageSquare, CheckCircle, Circle } from 'lucide-react';
+import playerjs from 'player.js';
 import { useDocumentTitle } from '../../hooks/useDocumentTitle';
 import { useAuth } from '../../hooks/useAuth';
 import { getCourseById, getLessonById, getComments, createComment, replyComment, getCourseProgress, markLessonComplete, unmarkLessonComplete } from '../../services/courseService';
@@ -304,6 +305,8 @@ export default function LessonPage() {
   const [loadingLesson, setLoadingLesson] = useState(true);
   const [completedLessons, setCompletedLessons] = useState(new Set());
   const [togglingComplete, setTogglingComplete] = useState(false);
+  const iframeRef = useRef(null);
+  const autoMarkedRef = useRef(false);
 
   const isCompleted = completedLessons.has(lessonId);
 
@@ -350,6 +353,43 @@ export default function LessonPage() {
     setLoadingLesson(false);
   }, [course, lessonId, courseId]);
 
+  // Auto-conclui a aula quando o video termina (idempotente).
+  const handleVideoEnded = useCallback(async () => {
+    if (!isAuthenticated) return;
+    if (autoMarkedRef.current) return;
+    if (completedLessons.has(lessonId)) return;
+    autoMarkedRef.current = true;
+    setCompletedLessons((s) => new Set(s).add(lessonId));
+    try {
+      await markLessonComplete(lessonId);
+      toast.success('Aula concluida automaticamente!');
+    } catch {
+      autoMarkedRef.current = false;
+      setCompletedLessons((s) => { const n = new Set(s); n.delete(lessonId); return n; });
+    }
+  }, [isAuthenticated, completedLessons, lessonId]);
+
+  // Reseta o flag de auto-mark quando troca de aula
+  useEffect(() => { autoMarkedRef.current = false; }, [lessonId]);
+
+  // Liga o player.js no iframe do Bunny para escutar o evento "ended"
+  useEffect(() => {
+    const iframe = iframeRef.current;
+    if (!iframe) return;
+    let player;
+    try {
+      player = new playerjs.Player(iframe);
+      player.on('ready', () => {
+        player.on('ended', handleVideoEnded);
+      });
+    } catch {
+      // Player.js indisponivel ou iframe incompativel — ignora silenciosamente
+    }
+    return () => {
+      try { player?.off('ended'); } catch { /* noop */ }
+    };
+  }, [lesson?.videoUrl, handleVideoEnded]);
+
   const handleToggleComplete = async () => {
     setTogglingComplete(true);
     const prev = new Set(completedLessons);
@@ -393,6 +433,7 @@ export default function LessonPage() {
                 <div className="mb-6 rounded-xl overflow-hidden bg-black aspect-video">
                   {lesson.videoUrl.includes('iframe.mediadelivery.net') || lesson.videoUrl.includes('/embed/') ? (
                     <iframe
+                      ref={iframeRef}
                       src={lesson.videoUrl}
                       className="w-full h-full"
                       allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
@@ -405,6 +446,7 @@ export default function LessonPage() {
                       controls
                       className="w-full h-full"
                       controlsList="nodownload"
+                      onEnded={handleVideoEnded}
                     />
                   )}
                 </div>
