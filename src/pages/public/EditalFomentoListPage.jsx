@@ -76,6 +76,7 @@ export default function EditalFomentoListPage() {
   const [showFilters, setShowFilters] = useState(false);
   const [page, setPage] = useState(1);
   const [showFavorites, setShowFavorites] = useState(false);
+  const [categoria, setCategoria] = useState('FOMENTO');
   const debouncedSearch = useDebounce(search);
 
   useEffect(() => {
@@ -111,22 +112,31 @@ export default function EditalFomentoListPage() {
 
   const stats = useMemo(() => {
     if (allEditais.length === 0) return null;
-    let abertos = 0, fechados = 0, continuos = 0, volumeTotal = 0;
+    let abertos = 0, fechados = 0, continuos = 0, volumeTotal = 0, totalCategoria = 0;
+    let countFomento = 0, countAceleracao = 0;
     allEditais.forEach((e) => {
+      const cat = e.categoria || 'FOMENTO';
+      if (cat === 'FOMENTO') countFomento++;
+      else if (cat === 'ACELERACAO') countAceleracao++;
+
+      if (cat !== categoria) return;
+      totalCategoria++;
       if (e._effectiveStatus === 'ENCERRADO') fechados++;
       else if (e._effectiveStatus === 'CONTINUO') continuos++;
       else abertos++;
       const vol = parseFloat(e.volumeTotalProjeto) || parseFloat(e.volumeAporte1) || 0;
       volumeTotal += vol;
     });
-    return { total: allEditais.length, abertos, fechados, continuos, volumeTotal };
-  }, [allEditais]);
+    return { total: totalCategoria, abertos, fechados, continuos, volumeTotal, countFomento, countAceleracao };
+  }, [allEditais, categoria]);
 
   const filteredEditais = useMemo(() => {
     return allEditais
       .filter((e) => {
         // Apenas abertos e fluxo continuo nesta pagina
         if (e._effectiveStatus === 'ENCERRADO') return false;
+        // Filtro por categoria (FOMENTO ou ACELERACAO)
+        if (categoria && (e.categoria || 'FOMENTO') !== categoria) return false;
         if (showFavorites && !e.isFavorited) return false;
         if (status && e._effectiveStatus !== status) return false;
         if (selectedEstados.length > 0 && !selectedEstados.includes(e.estado)) return false;
@@ -150,12 +160,12 @@ export default function EditalFomentoListPage() {
         const dateB = b.prazoSubmissaoFase1 ? new Date(b.prazoSubmissaoFase1).getTime() : Infinity;
         return dateA - dateB;
       });
-  }, [allEditais, status, selectedEstados, selectedFaps, selectedAreas, dateFrom, dateTo, debouncedSearch, showFavorites]);
+  }, [allEditais, categoria, status, selectedEstados, selectedFaps, selectedAreas, dateFrom, dateTo, debouncedSearch, showFavorites]);
 
   const totalPages = Math.ceil(filteredEditais.length / PER_PAGE) || 1;
   const paginatedEditais = filteredEditais.slice((page - 1) * PER_PAGE, page * PER_PAGE);
 
-  useEffect(() => { setPage(1); }, [status, selectedEstados, selectedFaps, selectedAreas, dateFrom, dateTo, debouncedSearch, showFavorites]);
+  useEffect(() => { setPage(1); }, [categoria, status, selectedEstados, selectedFaps, selectedAreas, dateFrom, dateTo, debouncedSearch, showFavorites]);
 
   const { allAreas, allFaps } = useMemo(() => {
     const areasSet = new Set(), fapsSet = new Set();
@@ -206,11 +216,13 @@ export default function EditalFomentoListPage() {
   return (
     <div className="min-h-screen">
       {/* Header */}
-      <div className="bg-white border-b border-gray-200 px-4 sm:px-6 py-5 max-w-7xl mx-auto">
-        <div className="flex items-center justify-between">
+      <div className="bg-white border-b border-gray-200 px-4 sm:px-6 pt-5 max-w-7xl mx-auto">
+        <div className="flex items-center justify-between mb-4">
           <div>
             <h1 className="text-xl font-bold font-heading text-gray-900">Editais Abertos</h1>
-            <p className="text-sm text-gray-500 mt-0.5">Oportunidades de financiamento com inscricoes ativas</p>
+            <p className="text-sm text-gray-500 mt-0.5">
+              {categoria === 'FOMENTO' ? 'Oportunidades de financiamento com inscricoes ativas' : 'Programas de aceleracao com inscricoes abertas'}
+            </p>
           </div>
           {stats && (
             <div className="hidden sm:flex items-center gap-5 text-sm">
@@ -235,6 +247,44 @@ export default function EditalFomentoListPage() {
               </div>
             </div>
           )}
+        </div>
+
+        {/* Tabs Fomento / Aceleracao */}
+        <div className="flex items-center gap-1 border-b border-gray-100 -mb-px">
+          <button
+            onClick={() => setCategoria('FOMENTO')}
+            className={cn(
+              'px-5 py-3 text-sm font-semibold border-b-2 transition-colors',
+              categoria === 'FOMENTO'
+                ? 'border-primary-500 text-primary-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700'
+            )}
+          >
+            Fomento
+            <span className={cn(
+              'ml-2 text-xs px-2 py-0.5 rounded-full font-bold',
+              categoria === 'FOMENTO' ? 'bg-primary-100 text-primary-700' : 'bg-gray-100 text-gray-500'
+            )}>
+              {stats?.countFomento || 0}
+            </span>
+          </button>
+          <button
+            onClick={() => setCategoria('ACELERACAO')}
+            className={cn(
+              'px-5 py-3 text-sm font-semibold border-b-2 transition-colors',
+              categoria === 'ACELERACAO'
+                ? 'border-primary-500 text-primary-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700'
+            )}
+          >
+            Aceleração
+            <span className={cn(
+              'ml-2 text-xs px-2 py-0.5 rounded-full font-bold',
+              categoria === 'ACELERACAO' ? 'bg-primary-100 text-primary-700' : 'bg-gray-100 text-gray-500'
+            )}>
+              {stats?.countAceleracao || 0}
+            </span>
+          </button>
         </div>
       </div>
 

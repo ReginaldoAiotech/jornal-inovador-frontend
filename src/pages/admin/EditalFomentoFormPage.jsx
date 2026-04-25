@@ -15,6 +15,11 @@ const STATUS_OPTIONS = [
   { value: 'CONTINUO', label: 'Fluxo continuo' },
 ];
 
+const CATEGORIA_OPTIONS = [
+  { value: 'FOMENTO', label: 'Fomento' },
+  { value: 'ACELERACAO', label: 'Aceleração' },
+];
+
 export default function EditalFomentoFormPage() {
   const { id } = useParams();
   useDocumentTitle('Editar Edital de Fomento');
@@ -27,6 +32,7 @@ export default function EditalFomentoFormPage() {
     fap: '',
     estado: '',
     status: 'ABERTO',
+    categoria: 'FOMENTO',
     dataAbertura: '',
     prazoSubmissaoFase1: '',
     volumeTotalProjeto: '',
@@ -50,6 +56,7 @@ export default function EditalFomentoFormPage() {
           fap: d.fap || '',
           estado: d.estado || '',
           status: d.status || 'ABERTO',
+          categoria: d.categoria || 'FOMENTO',
           dataAbertura: d.dataAbertura ? d.dataAbertura.slice(0, 10) : '',
           prazoSubmissaoFase1: d.prazoSubmissaoFase1 ? d.prazoSubmissaoFase1.slice(0, 10) : '',
           volumeTotalProjeto: d.volumeTotalProjeto ?? '',
@@ -84,6 +91,7 @@ export default function EditalFomentoFormPage() {
         instituicaoFomento: form.instituicaoFomento,
         estado: form.estado,
         status: form.status,
+        categoria: form.categoria,
         restricoes: form.restricoes,
         informacoesGerais: form.informacoesGerais,
         linkPdf: form.linkPdf,
@@ -118,7 +126,7 @@ export default function EditalFomentoFormPage() {
           <Input label="Instituicao de fomento" id="instituicaoFomento" value={form.instituicaoFomento} onChange={handleChange('instituicaoFomento')} />
           <Input label="FAP" id="fap" value={form.fap} onChange={handleChange('fap')} placeholder="Ex: CNPq" />
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <Input label="Estado" id="estado" value={form.estado} onChange={handleChange('estado')} />
           <div>
             <label htmlFor="status" className="block text-sm font-medium text-gray-700 mb-1">Status</label>
@@ -129,6 +137,19 @@ export default function EditalFomentoFormPage() {
               className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary-400 focus:ring-1 focus:ring-primary-400"
             >
               {STATUS_OPTIONS.map((opt) => (
+                <option key={opt.value} value={opt.value}>{opt.label}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label htmlFor="categoria" className="block text-sm font-medium text-gray-700 mb-1">Categoria</label>
+            <select
+              id="categoria"
+              value={form.categoria}
+              onChange={handleChange('categoria')}
+              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary-400 focus:ring-1 focus:ring-primary-400"
+            >
+              {CATEGORIA_OPTIONS.map((opt) => (
                 <option key={opt.value} value={opt.value}>{opt.label}</option>
               ))}
             </select>

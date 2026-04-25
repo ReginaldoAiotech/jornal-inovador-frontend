@@ -100,16 +100,31 @@ function PieLabel({ cx, cy, midAngle, innerRadius, outerRadius, percent }) {
 // --- Main Page ---
 export default function FomentoDashboardPage() {
   useDocumentTitle('Dashboard de Fomento');
-  const [allEditais, setAllEditais] = useState([]);
+  const [todosEditais, setTodosEditais] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [categoria, setCategoria] = useState('FOMENTO');
 
   useEffect(() => {
     setLoading(true);
     getEditaisFomentoDashboard()
-      .then((data) => setAllEditais(Array.isArray(data) ? data : []))
+      .then((data) => setTodosEditais(Array.isArray(data) ? data : []))
       .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
+
+  const counts = useMemo(() => {
+    let countFomento = 0, countAceleracao = 0;
+    todosEditais.forEach((e) => {
+      const cat = e.categoria || 'FOMENTO';
+      if (cat === 'FOMENTO') countFomento++;
+      else if (cat === 'ACELERACAO') countAceleracao++;
+    });
+    return { countFomento, countAceleracao };
+  }, [todosEditais]);
+
+  const allEditais = useMemo(() => {
+    return todosEditais.filter((e) => (e.categoria || 'FOMENTO') === categoria);
+  }, [todosEditais, categoria]);
 
   const abertos = useMemo(() => allEditais.filter((e) => e.status !== 'ENCERRADO'), [allEditais]);
 
@@ -232,9 +247,41 @@ export default function FomentoDashboardPage() {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 pb-12">
       {/* Header */}
-      <div className="mb-6">
-        <h1 className="text-xl font-bold font-heading text-gray-900">Dashboard de Fomento</h1>
+      <div className="mb-4">
+        <h1 className="text-xl font-bold font-heading text-gray-900">
+          Dashboard de {categoria === 'FOMENTO' ? 'Fomento' : 'Aceleração'}
+        </h1>
         <p className="text-sm text-gray-500 mt-0.5">Visao geral de {allEditais.length} editais mapeados</p>
+      </div>
+
+      {/* Tabs Fomento / Aceleracao */}
+      <div className="flex items-center gap-1 border-b border-gray-100 mb-6">
+        <button
+          onClick={() => setCategoria('FOMENTO')}
+          className={`px-5 py-3 text-sm font-semibold border-b-2 transition-colors ${
+            categoria === 'FOMENTO'
+              ? 'border-primary-500 text-primary-600'
+              : 'border-transparent text-gray-500 hover:text-gray-700'
+          }`}
+        >
+          Fomento
+          <span className={`ml-2 text-xs px-2 py-0.5 rounded-full font-bold ${
+            categoria === 'FOMENTO' ? 'bg-primary-100 text-primary-700' : 'bg-gray-100 text-gray-500'
+          }`}>{counts.countFomento}</span>
+        </button>
+        <button
+          onClick={() => setCategoria('ACELERACAO')}
+          className={`px-5 py-3 text-sm font-semibold border-b-2 transition-colors ${
+            categoria === 'ACELERACAO'
+              ? 'border-primary-500 text-primary-600'
+              : 'border-transparent text-gray-500 hover:text-gray-700'
+          }`}
+        >
+          Aceleração
+          <span className={`ml-2 text-xs px-2 py-0.5 rounded-full font-bold ${
+            categoria === 'ACELERACAO' ? 'bg-primary-100 text-primary-700' : 'bg-gray-100 text-gray-500'
+          }`}>{counts.countAceleracao}</span>
+        </button>
       </div>
 
       {/* KPIs */}

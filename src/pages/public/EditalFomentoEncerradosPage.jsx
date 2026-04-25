@@ -49,6 +49,7 @@ export default function EditalFomentoEncerradosPage() {
   const [selectedFaps, setSelectedFaps] = useState([]);
   const [selectedAreas, setSelectedAreas] = useState([]);
   const [estados, setEstados] = useState([]);
+  const [categoria, setCategoria] = useState('FOMENTO');
   const [showFilters, setShowFilters] = useState(false);
   const [showFavorites, setShowFavorites] = useState(false);
   const [page, setPage] = useState(1);
@@ -86,8 +87,19 @@ export default function EditalFomentoEncerradosPage() {
       .finally(() => setLoading(false));
   }, [isAuthenticated]);
 
+  const counts = useMemo(() => {
+    let countFomento = 0, countAceleracao = 0;
+    allEditais.forEach((e) => {
+      const cat = e.categoria || 'FOMENTO';
+      if (cat === 'FOMENTO') countFomento++;
+      else if (cat === 'ACELERACAO') countAceleracao++;
+    });
+    return { countFomento, countAceleracao };
+  }, [allEditais]);
+
   const filteredEditais = useMemo(() => {
     return allEditais.filter((e) => {
+      if ((e.categoria || 'FOMENTO') !== categoria) return false;
       if (showFavorites && !e.isFavorited) return false;
       if (selectedEstados.length > 0 && !selectedEstados.includes(e.estado)) return false;
       if (selectedFaps.length > 0 && !selectedFaps.includes(e.fap)) return false;
@@ -100,12 +112,12 @@ export default function EditalFomentoEncerradosPage() {
       }
       return true;
     });
-  }, [allEditais, selectedEstados, selectedFaps, selectedAreas, debouncedSearch, showFavorites]);
+  }, [allEditais, categoria, selectedEstados, selectedFaps, selectedAreas, debouncedSearch, showFavorites]);
 
   const totalPages = Math.ceil(filteredEditais.length / PER_PAGE) || 1;
   const paginatedEditais = filteredEditais.slice((page - 1) * PER_PAGE, page * PER_PAGE);
 
-  useEffect(() => { setPage(1); }, [selectedEstados, selectedFaps, selectedAreas, debouncedSearch, showFavorites]);
+  useEffect(() => { setPage(1); }, [categoria, selectedEstados, selectedFaps, selectedAreas, debouncedSearch, showFavorites]);
 
   const { allAreas, allFaps } = useMemo(() => {
     const areasSet = new Set(), fapsSet = new Set();
@@ -133,9 +145,49 @@ export default function EditalFomentoEncerradosPage() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 pb-8">
-      <div className="mb-6">
+      <div className="mb-4">
         <h1 className="text-xl font-bold font-heading text-gray-900">Editais Encerrados</h1>
-        <p className="text-sm text-gray-500 mt-0.5">Editais com prazo de submissao expirado</p>
+        <p className="text-sm text-gray-500 mt-0.5">
+          {categoria === 'FOMENTO' ? 'Editais de fomento com prazo expirado' : 'Programas de aceleracao com inscricoes encerradas'}
+        </p>
+      </div>
+
+      {/* Tabs Fomento / Aceleracao */}
+      <div className="flex items-center gap-1 border-b border-gray-100 mb-6">
+        <button
+          onClick={() => setCategoria('FOMENTO')}
+          className={cn(
+            'px-5 py-3 text-sm font-semibold border-b-2 transition-colors',
+            categoria === 'FOMENTO'
+              ? 'border-primary-500 text-primary-600'
+              : 'border-transparent text-gray-500 hover:text-gray-700'
+          )}
+        >
+          Fomento
+          <span className={cn(
+            'ml-2 text-xs px-2 py-0.5 rounded-full font-bold',
+            categoria === 'FOMENTO' ? 'bg-primary-100 text-primary-700' : 'bg-gray-100 text-gray-500'
+          )}>
+            {counts.countFomento}
+          </span>
+        </button>
+        <button
+          onClick={() => setCategoria('ACELERACAO')}
+          className={cn(
+            'px-5 py-3 text-sm font-semibold border-b-2 transition-colors',
+            categoria === 'ACELERACAO'
+              ? 'border-primary-500 text-primary-600'
+              : 'border-transparent text-gray-500 hover:text-gray-700'
+          )}
+        >
+          Aceleração
+          <span className={cn(
+            'ml-2 text-xs px-2 py-0.5 rounded-full font-bold',
+            categoria === 'ACELERACAO' ? 'bg-primary-100 text-primary-700' : 'bg-gray-100 text-gray-500'
+          )}>
+            {counts.countAceleracao}
+          </span>
+        </button>
       </div>
 
       {/* Search & Filters */}
