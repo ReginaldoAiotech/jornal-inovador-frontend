@@ -153,36 +153,45 @@ export default function EditalFomentoEncerradosPage() {
       </div>
 
       {/* Tabs Fomento / Aceleracao */}
-      <div className="flex items-center gap-1 border-b border-gray-100 mb-6">
+      <div role="tablist" aria-label="Selecionar categoria" className="flex items-center gap-1 border-b border-gray-100 mb-6">
+        <span className="hidden sm:inline-block text-[11px] uppercase tracking-wider font-semibold text-gray-400 pr-3 pl-1">
+          Categoria:
+        </span>
         <button
+          role="tab"
+          aria-selected={categoria === 'FOMENTO'}
+          title="Clique para ver editais de Fomento"
           onClick={() => setCategoria('FOMENTO')}
           className={cn(
-            'px-5 py-3 text-sm font-semibold border-b-2 transition-colors',
+            'px-5 py-3 text-sm font-semibold border-b-2 rounded-t-lg cursor-pointer transition-all duration-200',
             categoria === 'FOMENTO'
-              ? 'border-primary-500 text-primary-600'
-              : 'border-transparent text-gray-500 hover:text-gray-700'
+              ? 'border-primary-500 text-primary-600 bg-primary-50/50'
+              : 'border-transparent text-gray-600 hover:text-primary-600 hover:bg-gray-50 hover:border-gray-300'
           )}
         >
           Fomento
           <span className={cn(
-            'ml-2 text-xs px-2 py-0.5 rounded-full font-bold',
+            'ml-2 text-xs px-2 py-0.5 rounded-full font-bold transition-colors',
             categoria === 'FOMENTO' ? 'bg-primary-100 text-primary-700' : 'bg-gray-100 text-gray-500'
           )}>
             {counts.countFomento}
           </span>
         </button>
         <button
+          role="tab"
+          aria-selected={categoria === 'ACELERACAO'}
+          title="Clique para ver editais de Aceleração"
           onClick={() => setCategoria('ACELERACAO')}
           className={cn(
-            'px-5 py-3 text-sm font-semibold border-b-2 transition-colors',
+            'px-5 py-3 text-sm font-semibold border-b-2 rounded-t-lg cursor-pointer transition-all duration-200',
             categoria === 'ACELERACAO'
-              ? 'border-primary-500 text-primary-600'
-              : 'border-transparent text-gray-500 hover:text-gray-700'
+              ? 'border-primary-500 text-primary-600 bg-primary-50/50'
+              : 'border-transparent text-gray-600 hover:text-primary-600 hover:bg-gray-50 hover:border-gray-300'
           )}
         >
           Aceleração
           <span className={cn(
-            'ml-2 text-xs px-2 py-0.5 rounded-full font-bold',
+            'ml-2 text-xs px-2 py-0.5 rounded-full font-bold transition-colors',
             categoria === 'ACELERACAO' ? 'bg-primary-100 text-primary-700' : 'bg-gray-100 text-gray-500'
           )}>
             {counts.countAceleracao}
