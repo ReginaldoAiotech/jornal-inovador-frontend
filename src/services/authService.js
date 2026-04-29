@@ -11,6 +11,11 @@ export async function register(name, email, password) {
   return data;
 }
 
+export async function registerTrial(payload) {
+  const { data } = await api.post(API.AUTH.REGISTER_TRIAL, payload);
+  return data;
+}
+
 export async function getMe() {
   const { data } = await api.get(API.AUTH.ME);
   return data;

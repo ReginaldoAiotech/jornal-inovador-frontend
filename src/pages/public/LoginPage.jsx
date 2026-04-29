@@ -82,6 +82,14 @@ export default function LoginPage() {
               Cadastre-se
             </Link>
           </p>
+          <div className="mt-3 text-center">
+            <Link
+              to={ROUTES.REGISTER_COMPANY}
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-accent-600 hover:text-accent-700 hover:underline"
+            >
+              Sua empresa? Teste 7 dias gratis →
+            </Link>
+          </div>
         </div>
       </div>
     </div>

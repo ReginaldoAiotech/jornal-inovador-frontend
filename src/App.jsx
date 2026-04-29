@@ -18,6 +18,7 @@ import CourseDetailPage from './pages/public/CourseDetailPage';
 import LessonPage from './pages/public/LessonPage';
 import LoginPage from './pages/public/LoginPage';
 import RegisterPage from './pages/public/RegisterPage';
+import RegisterCompanyPage from './pages/public/RegisterCompanyPage';
 import EditalFomentoListPage from './pages/public/EditalFomentoListPage';
 import EditalFomentoEncerradosPage from './pages/public/EditalFomentoEncerradosPage';
 import EditalFomentoDetailPage from './pages/public/EditalFomentoDetailPage';
@@ -66,6 +67,7 @@ export default function App() {
           <Route path="classificados/:id" element={<ClassifiedDetailPage />} />
           <Route path="entrar" element={<LoginPage />} />
           <Route path="cadastro" element={<RegisterPage />} />
+          <Route path="cadastro-empresa" element={<RegisterCompanyPage />} />
         </Route>
 
         {/* Paginas protegidas - com sidebar */}

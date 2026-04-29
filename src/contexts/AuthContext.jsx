@@ -41,16 +41,28 @@ export function AuthProvider({ children }) {
     setUser(null);
   }, []);
 
+  const trialEndsAt = user?.trialEndsAt ? new Date(user.trialEndsAt) : null;
+  const isExternal = user?.accountType === 'EXTERNAL';
+  const trialMillisLeft = trialEndsAt ? trialEndsAt.getTime() - Date.now() : null;
+  const isTrialActive = isExternal && trialMillisLeft !== null && trialMillisLeft > 0;
+  const isTrialExpired = isExternal && trialMillisLeft !== null && trialMillisLeft <= 0;
+  const trialDaysLeft = isTrialActive ? Math.ceil(trialMillisLeft / (1000 * 60 * 60 * 24)) : 0;
+
   const value = useMemo(() => ({
     user,
     isLoading,
     isAuthenticated: !!user,
     isAdmin: user?.role === 'ADMIN',
     isEditor: user?.role === 'EDITOR' || user?.role === 'ADMIN',
+    isExternal,
+    isTrialActive,
+    isTrialExpired,
+    trialDaysLeft,
+    trialEndsAt,
     login,
     register,
     logout,
-  }), [user, isLoading, login, register, logout]);
+  }), [user, isLoading, isExternal, isTrialActive, isTrialExpired, trialDaysLeft, trialEndsAt, login, register, logout]);
 
   return (
     <AuthContext.Provider value={value}>

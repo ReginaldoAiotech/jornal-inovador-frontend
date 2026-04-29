@@ -17,6 +17,7 @@ export const ROUTES = Object.freeze({
   AUTHOR: '/autor/:authorId',
   LOGIN: '/entrar',
   REGISTER: '/cadastro',
+  REGISTER_COMPANY: '/cadastro-empresa',
 
   DASHBOARD: '/painel',
   MY_CLASSIFIEDS: '/painel/meus-classificados',

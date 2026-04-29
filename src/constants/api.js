@@ -2,6 +2,7 @@ export const API = Object.freeze({
   AUTH: {
     LOGIN: '/auth/login',
     REGISTER: '/auth/register',
+    REGISTER_TRIAL: '/auth/register-trial',
     ME: '/auth/me',
   },
   ARTICLES: {
