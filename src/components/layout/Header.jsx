@@ -177,8 +177,8 @@ export default function Header() {
                 <Link to={ROUTES.LOGIN}>
                   <Button variant="ghost" size="sm">Entrar</Button>
                 </Link>
-                <Link to={ROUTES.REGISTER}>
-                  <Button variant="primary" size="sm">Cadastre-se</Button>
+                <Link to={ROUTES.REGISTER_COMPANY}>
+                  <Button variant="primary" size="sm">Teste 7 dias gratis</Button>
                 </Link>
               </>
             )}
@@ -257,8 +257,8 @@ export default function Header() {
                 <Link to={ROUTES.LOGIN} className="flex-1">
                   <Button variant="ghost" size="sm" className="w-full">Entrar</Button>
                 </Link>
-                <Link to={ROUTES.REGISTER} className="flex-1">
-                  <Button variant="primary" size="sm" className="w-full">Cadastre-se</Button>
+                <Link to={ROUTES.REGISTER_COMPANY} className="flex-1">
+                  <Button variant="primary" size="sm" className="w-full">Teste 7 dias</Button>
                 </Link>
               </div>
             )}

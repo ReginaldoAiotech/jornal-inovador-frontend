@@ -188,10 +188,10 @@ export default function HomePage() {
                 </Link>
               ) : (
                 <Link
-                  to={ROUTES.REGISTER}
+                  to={ROUTES.REGISTER_COMPANY}
                   className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-primary-500 transition-colors"
                 >
-                  <Lock className="h-3.5 w-3.5" /> Cadastre-se para ver todos
+                  <Lock className="h-3.5 w-3.5" /> Teste 7 dias gratis pra ver todos
                 </Link>
               )}
             </div>
@@ -205,14 +205,14 @@ export default function HomePage() {
             {!isAuthenticated && (
               <div className="mt-8 text-center bg-white rounded-xl border border-gray-200 p-6">
                 <p className="text-gray-600 mb-3">
-                  Cadastre-se gratuitamente para acessar todos os editais, classificados e cursos.
+                  Teste 7 dias gratis e acesse todos os editais, classificados e cursos.
                 </p>
                 <div className="flex items-center justify-center gap-3">
                   <Link
-                    to={ROUTES.REGISTER}
+                    to={ROUTES.REGISTER_COMPANY}
                     className="inline-flex items-center gap-2 bg-primary-500 text-white px-6 py-2.5 rounded-lg font-medium hover:bg-primary-600 transition-colors text-sm"
                   >
-                    Criar conta gratuita
+                    Comecar teste gratis
                   </Link>
                   <Link
                     to={ROUTES.LOGIN}
