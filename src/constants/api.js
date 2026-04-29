@@ -56,6 +56,9 @@ export const API = Object.freeze({
     BY_ID: (id) => `/users/${id}`,
     APPROVE: (id) => `/users/${id}/approve`,
     REJECT: (id) => `/users/${id}/reject`,
+    GRANT_TRIAL: (id, days) => `/users/${id}/grant-trial${days ? `?days=${days}` : ''}`,
+    EXTEND_TRIAL: (id, days) => `/users/${id}/extend-trial${days ? `?days=${days}` : ''}`,
+    CONVERT_TO_INTERNAL: (id) => `/users/${id}/convert-to-internal`,
   },
   COURSES: {
     BASE: '/courses',

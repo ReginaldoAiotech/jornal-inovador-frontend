@@ -38,3 +38,18 @@ export async function suspendUser(id) {
   const { data } = await api.patch(API.USERS.BY_ID(id), { isApproved: false });
   return data;
 }
+
+export async function grantTrial(id, days = 7) {
+  const { data } = await api.patch(API.USERS.GRANT_TRIAL(id, days));
+  return data;
+}
+
+export async function extendTrial(id, days = 7) {
+  const { data } = await api.patch(API.USERS.EXTEND_TRIAL(id, days));
+  return data;
+}
+
+export async function convertToInternal(id) {
+  const { data } = await api.patch(API.USERS.CONVERT_TO_INTERNAL(id));
+  return data;
+}
